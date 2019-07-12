@@ -88,7 +88,7 @@
                 <div class="popover popover-bottom">
                   <a class="btn btn-primary">Игрок</a>
                   <div class="popover-container card" style="top:65%;">
-                    {\nick}, {\steamid}, {\steamid64}
+                    {\nick}, {\steamid}, {\steamid64}, {\vipGroup}, {\vipTime}
                   </div>
                 </div>
               </div>
@@ -122,7 +122,7 @@
               </div>
               <div class="col-9 col-sm-12 form-group">
                 <label class="form-switch">
-                  <input type="checkbox"><i class="form-icon"></i> Только для випов
+                  <input type="checkbox" id="in_is_vip" name="is_vip"><i class="form-icon"></i> Только для випов
                 </label>
                 <label class="form-label col-9" >Админ-флаги:</label>
                 <input class="form-input" type="text" id="in_admin_flags" name="admin_flags" id="in_value" placeholder="..." value="">
@@ -162,13 +162,13 @@
         <tr <check if="{{@adv.show==0}}">style="background: #dfdfdf;"</check> >
           <td class="col-1">{{ @adv.adv_id }}</td>
           <td class="col-1">{{ @adv.show }}</td>
-          <td class="text-italic">
+          <td style="max-width: 200px; white-space: normal; min-width:140px;">
             <repeat group="{{@@adv.servers}}" value="{{@server}}">
               {{@server.title}}
             </repeat>
           </td>
           <td class="col-1">{{ @adv.msg_type }}</td>
-          <td class="col-5 text-break colorize">{{ @adv.msg_text|raw }}</td>
+          <td class="col-5 text-break colorize" style="vertical-align:middle;">{{ @adv.msg_text|raw }}</td>
           <td class="col-1">{{ @adv.is_vip }}</td>
           <td class="col-1">{{ @adv.order }}</td>
           <td class="col-1">{{ @adv.day_of_week }}</td>

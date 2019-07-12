@@ -13,7 +13,7 @@ if(in_filter) in_filter.oninput = function(event) {
   let tbody = document.querySelector("tbody#items_list");
   if(tbody) {
     for(let elem of tbody.querySelectorAll("tr")) {
-      if(elem.textContent.toLowerCase().includes(event.target.value)) {
+      if(elem.textContent.toLowerCase().includes(event.target.value.toLowerCase())) {
         elem.style.visibility = null;
       } else {
         elem.style.visibility = "collapse";
@@ -119,6 +119,7 @@ if(btn_add_ads) {
     modal_elem.querySelector('#in_date_to').value = null;
     modal_elem.querySelector('#in_hours').value = null;
     modal_elem.querySelector('#in_day_of_week').value = null;
+    modal_elem.querySelector('#in_is_vip').value = null;
     modal_elem.querySelector('#in_admin_flags').value = null;
     modal_elem.querySelector('#in_views').value = null;
     modal_elem.querySelector('#in_order').value = null;
@@ -163,6 +164,7 @@ if(btn_add_ads) {
           modal_elem.querySelector('#in_date_to').value = json.date_to;
           modal_elem.querySelector('#in_hours').value = json.hours;
           modal_elem.querySelector('#in_day_of_week').value = json.day_of_week;
+          modal_elem.querySelector('#in_is_vip').checked = json.is_vip;
           modal_elem.querySelector('#in_admin_flags').value = json.admin_flags;
           modal_elem.querySelector('#in_views').value = json.views;
           modal_elem.querySelector('#in_order').value = json.order;
@@ -217,8 +219,9 @@ function colorize(elem2) {
   elem2.innerHTML = elem2.innerHTML.replace(/{\\11}/g, '<span style="color:#5e98d9;">');
   elem2.innerHTML = elem2.innerHTML.replace(/{\\12}/g, '<span style="color:#4b69ff;">');
   elem2.innerHTML = elem2.innerHTML.replace(/{\\13}/g, '<span style="color:#b0c3d9;">');
-  elem2.innerHTML = elem2.innerHTML.replace(/{\\14}/g, '<span style="color:#eb4b4b;">');
-  elem2.innerHTML = elem2.innerHTML.replace(/{\\15}/g, '<span style="color:#e4ae39;">');
+  elem2.innerHTML = elem2.innerHTML.replace(/{\\14}/g, '<span style="color:#d32ce6;">');
+  elem2.innerHTML = elem2.innerHTML.replace(/{\\15}/g, '<span style="color:#eb4b4b;">');
+  elem2.innerHTML = elem2.innerHTML.replace(/{\\16}/g, '<span style="color:#e4ae39;">');
   elem2.innerHTML = elem2.innerHTML.replace(/\\n/g, '<br>');
   elem2.innerHTML += '</span>';
 }

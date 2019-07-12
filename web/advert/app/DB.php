@@ -152,7 +152,7 @@ class DB {
       return $this;
     }
     private function _adsList(...$arguments) {
-        $res = $this->getTable('advert')->find();
+        $res = $this->getTable('advert')->find([''], ['order'=>'order']);
         if(empty($res)) {
             return $this->fpack('No ads');
         }

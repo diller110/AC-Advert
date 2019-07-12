@@ -145,6 +145,11 @@ class Ex {
     } else {
       $f3->set('POST.show', 0);
     }
+    if($f3->exists('POST.is_vip') && $f3->get('POST.is_vip') == 'on') {
+      $f3->set('POST.is_vip', 1);
+    } else {
+      $f3->set('POST.is_vip', 0);
+    }
 
     if(!$f3->exists('POST.date_from') || $f3->get('POST.date_from') == '1970-01-01') {
       $f3->set('POST.date_from', 0);

@@ -1,3 +1,7 @@
+#undef REQUIRE_PLUGIN
+#include <vip_core>
+#define REQUIRE_PLUGIN
+
 #pragma semicolon 1
 #pragma newdecls required
 
@@ -13,6 +17,7 @@ Dynamic words, ads;
 char title_db[128], address[20];
 int port = 0, srv_id = -1, cur = 1;
 float sec = 45.0;
+bool useVip = false;
 
 //{word}	Value
 //{/ip}		192.168.0.1
@@ -23,7 +28,7 @@ float sec = 45.0;
 
 public Plugin myinfo = {
 	name = "AC: Advertisement",	author = "diller110",
-	description = "MySQL-based advert", version = "1.0a"
+	description = "MySQL-based advert", version = "1.0b"
 };
 
 public void OnPluginStart() {
@@ -40,6 +45,23 @@ public void OnPluginStart() {
 public void OnPluginEnd() {
 	if (words.IsValid)words.Dispose();
 	if (ads.IsValid)ads.Dispose();
+}
+public void OnAllPluginsLoaded() {
+	useVip = LibraryExists("vip_core");
+}
+public void OnLibraryAdded(const char[] name) {
+	if(strcmp("vip_core", name) == 0) {
+		useVip = true;
+	}	
+}
+public void OnLibraryRemoved(const char[] name) {
+	if(strcmp("vip_core", name) == 0) {
+		useVip = false;
+	}	
+}
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
+	MarkNativeAsOptional("VIP_IsClientVIP");
+	return APLRes_Success;
 }
 public Action SrvCmd_Update(int args) {
 	PrintToServer("[AC:Advert] Get Update command from web.");
@@ -88,7 +110,7 @@ void SqlQueryWords(Database dbl, DBResultSet results, const char[] error, any da
 	}
 	
 	char key[48];
-	char value[512];
+	char value[STRLEN];
 	
 	if(results.RowCount == 0) {
 		PrintToServer("[AC:Advert] Magic words from db not found. It's strange.");
@@ -96,7 +118,7 @@ void SqlQueryWords(Database dbl, DBResultSet results, const char[] error, any da
 		while(results.FetchRow()) {
 			results.FetchString(1, key, sizeof(key));
 			results.FetchString(2, value, sizeof(value));
-			//PrintToServer("[AC:Advert] Magic word: '%s' loaded.", key);
+			FormatColors(value);
 			words.SetString(key, value);
 		}
 		
@@ -181,7 +203,6 @@ public Action Timer_Main(Handle timer) {
 	if(cur>ads.MemberCount) {
 		cur = 1;
 	}
-	
 
 	adv.GetString("hours", buff, 64);
 	if(!CheckHours(buff)) {
@@ -206,6 +227,9 @@ public Action Timer_Main(Handle timer) {
 			
 			for (int i = 1; i < MaxClients; i++) {
 				if(!IsClientInGame(i) || IsFakeClient(i)) {
+					continue;
+				}
+				if(adv.GetBool("is_vip", false) && !useVip && !VIP_IsClientVIP(i)) {
 					continue;
 				}
 				for (int i2 = 0; i2 < 5; i2++) {
@@ -234,6 +258,9 @@ public Action Timer_Main(Handle timer) {
 				if(!IsClientInGame(i) || IsFakeClient(i)) {
 					continue;
 				}
+				if(adv.GetBool("is_vip", false) && !useVip && !VIP_IsClientVIP(i)) {
+					continue;
+				}
 				if(userable) {
 					strcopy(buff_u, sizeof(buff_u), buff);
 					FormatUserable(buff_u, i);
@@ -253,7 +280,8 @@ void StrToVec4(char []str, int vec4[4]) {
 	vec4[2] = StringToInt(buff[2]); vec4[3] = StringToInt(buff[3]);
 }
 bool CheckHours(char[] str) {
-	Regex reg = new Regex("\\d*-*\\d*");
+	static Regex reg = null;
+	if(reg == null) reg = new Regex("\\d*-*\\d*");
 	if(reg == null) return false;
 	
 	char key[8];
@@ -279,7 +307,8 @@ bool CheckHours(char[] str) {
 	return false;
 }
 bool CheckDays(char[] str) {
-	Regex reg = new Regex("[1-7]*-*[1-7]*");
+	static Regex reg = null;
+	if(reg == null) reg = new Regex("[1-7]*-*[1-7]*");
 	if(reg == null) return false;
 	
 	char key[8];
@@ -333,21 +362,39 @@ void FormatCustom(char str[STRLEN]) {
 }
 void FormatColors(char str[STRLEN]) {
 	Regex reg = new Regex("{\\\\([0-1]{1}[0-9]{1})}");
-	if(reg == null) {
-		return;
-	}
+	if(reg == null)	return;
 	int c = 1;
 	char key[6];
 	char value[6];
 	if(reg.MatchAll(str) > 0) {
-		for (int i = 0; i < reg.MatchCount(); i++) {
-			value[0] = 0;
-			reg.GetSubString(1, key, sizeof(key), i);
-			c = StringToInt(key);
-			Format(key, sizeof(key), "{\\%s}", key);
-			Format(value, sizeof(value), "%s%c", i==0?" ":"", c);
-			ReplaceString(str, sizeof(str), key, value);
-		}
+		EngineVersion iEngineVersion = GetEngineVersion();
+		if(!(iEngineVersion == Engine_CSS || iEngineVersion == Engine_TF2 || iEngineVersion == Engine_HL2DM || iEngineVersion == Engine_DODS)) {
+			for (int i = 0; i < reg.MatchCount(); i++) {
+				value[0] = 0;
+				reg.GetSubString(1, key, sizeof(key), i);
+				c = StringToInt(key);
+				Format(key, sizeof(key), "{\\%s}", key);
+				Format(value, sizeof(value), "%s%c", i==0?" ":"", c);
+				ReplaceString(str, sizeof(str), key, value);
+			}
+		} else {
+			ReplaceString(str, sizeof(str), "{\\01}", "\x01");
+			ReplaceString(str, sizeof(str), "{\\02}", "\x07FF0000");
+			ReplaceString(str, sizeof(str), "{\\03}", "\x07BA81F0");
+			ReplaceString(str, sizeof(str), "{\\04}", "\x0740FF40");
+			ReplaceString(str, sizeof(str), "{\\05}", "\x07BFFF90");
+			ReplaceString(str, sizeof(str), "{\\06}", "\x07A2FF47");
+			ReplaceString(str, sizeof(str), "{\\07}", "\x07FF4040");
+			ReplaceString(str, sizeof(str), "{\\08}", "\x07C5CAD0");
+			ReplaceString(str, sizeof(str), "{\\09}", "\x07EDE47A");
+			ReplaceString(str, sizeof(str), "{\\10}", "\x07B0C3D9");
+			ReplaceString(str, sizeof(str), "{\\11}", "\x075E98D9");
+			ReplaceString(str, sizeof(str), "{\\12}", "\x074B69FF");
+			ReplaceString(str, sizeof(str), "{\\13}", "\x07B0C3D9");
+			ReplaceString(str, sizeof(str), "{\\14}", "\x07D32CE6");
+			ReplaceString(str, sizeof(str), "{\\15}", "\x07EB4B4B");
+			ReplaceString(str, sizeof(str), "{\\16}", "\x07E4AE39");
+		}		
 	}
 }
 void FormatChangeable(char str[STRLEN]) {
@@ -465,6 +512,24 @@ void FormatUserable(char str[STRLEN], int client) {
 			ReplaceString(str, sizeof(str), "{\\steamid64}", buff);
 		} else {
 			ReplaceString(str, sizeof(str), "{\\steamid64}", "");
+		}
+	}
+	if (StrContains(str, "{\\") == -1) return;
+	if(useVip) {
+		if(StrContains(str, "{\\vipGroup}") != -1) {
+			if(!VIP_IsClientVIP(client) || !VIP_GetClientVIPGroup(client, buff, sizeof(buff))) {
+				ReplaceString(str, sizeof(str), "{\\vipGroup}", "-");
+			} else {
+				ReplaceString(str, sizeof(str), "{\\vipGroup}", buff);
+			}
+		}
+		if (StrContains(str, "{\\") == -1) return;
+		if(StrContains(str, "{\\vipTime}") != -1) {
+			if(!VIP_IsClientVIP(client) || !VIP_GetTimeFromStamp(buff, sizeof(buff), VIP_GetClientAccessTime(client)-GetTime(), client)) {
+				ReplaceString(str, sizeof(str), "{\\vipTime}", "-");
+			} else {
+				ReplaceString(str, sizeof(str), "{\\vipTime}", buff);
+			}
 		}
 	}
 }
