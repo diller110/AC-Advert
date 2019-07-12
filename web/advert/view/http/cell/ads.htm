@@ -1,0 +1,181 @@
+<header>
+  <button class="btn btn-primary btn-action" style="margin-bottom: 10px;" id="btn_add_ads"><i class="material-icons">add</i></button>
+  <div class="">
+    <input class="form-input" type="text" id="in_filter" placeholder="Поиск...">
+    <button class="btn btn-action"><i class="material-icons">line_style</i></button>
+  </div>
+</header>
+<section>
+  <div class="modal" id="modal_main">
+    <a href="#close" class="modal-overlay" aria-label="Close"></a>
+    <div class="modal-container" style="max-height: 95vh;">
+      <div class="modal-header">
+        <a href="#close" class="btn btn-clear float-right" aria-label="Close"></a>
+        <div class="modal-title h5" id="modal_title">Новая реклама:</div>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal" action="/advert/ex/ads" method="post">
+        <div class="content">
+            <input type="hidden" id="in_ads_id" name="adv_id" value="">
+            <div class="form-group">
+              <div class="col-3 col-sm-12">
+                <label class="form-label">Сервера:</label>
+              </div>
+              <div class="col-9 col-sm-12">
+                <label class="form-switch">
+                  <input type="checkbox" id="in_show" name="show"><i class="form-icon"></i> Активность
+                </label>
+                <select class="form-select " id="in_srv_id" required multiple name="srv_id[]" value="-1">
+                  <repeat group="{{@@servers}}" value="{{@server}}">
+                    <option value="{{@server.srv_id}}">{{@server.title}}</option>
+                  </repeat>
+                </select>
+              </div>
+
+            </div>
+            <div class="form-group">
+              <div class="col-3 col-sm-12">
+                <label class="form-label">Тип сообщения:</label>
+              </div>
+              <select id="in_msg_type" name="msg_type"  required class="col-9 col-sm-12 form-select">
+                <option value="1">Чат</option>
+                <option value="2">HUD</option>
+              </select>
+            </div>
+            <div class="form-group" id="group_hud" style="display:none;">
+              <div class="col-3 col-sm-12">
+                <label class="form-label">Стиль HUD:</label>
+              </div>
+              <div class="col-9 col-sm-12">
+                <label class="form-label col-9" >Color1:</label>
+                <input class="form-input" type="text" id="in_hud_color1" name="hud[color1]" placeholder="255 255 255 255" value="255 255 255 255">
+                <label class="form-label col-9" >Color2:</label>
+                <input class="form-input" type="text" id="in_hud_color2" name="hud[color2]" placeholder="255 255 255 255" value="255 255 255 255">
+                <label class="form-label">Effect:</label>
+                <input class="form-input" type="number" id="in_hud_effect" name="hud[effect]" placeholder="0" min=0 step=1 value="0">
+                <label class="form-label">Fadein:</label>
+                <input class="form-input" type="number" id="in_hud_fadein" name="hud[fadein]" placeholder="0.1" min=0.0 step=0.1 value="0.1">
+                <label class="form-label">Fadeout:</label>
+                <input class="form-input" type="number" id="in_hud_fadeout" name="hud[fadeout]" placeholder="0.1" min=0.0 step=0.1 value="0.1">
+                <label class="form-label">Holdtime:</label>
+                <input class="form-input" type="number" id="in_hud_holdtime" name="hud[holdtime]" placeholder="0.1" min=0.0 step=0.1 value="0.1">
+                <label class="form-label">Fxtime:</label>
+                <input class="form-input" type="number" id="in_hud_fxtime" name="hud[fxtime]" placeholder="0.1" min=0.0 step=0.1 value="0.1">
+                <label class="form-label">X:</label>
+                <input class="form-input" type="number" id="in_hud_x" name="hud[x]" placeholder="0.1" min=0.0 max=1.0 step=0.01 value="0.1">
+                <label class="form-label">Y:</label>
+                <input class="form-input" type="number" id="in_hud_y" name="hud[y]" placeholder="0.1" min=0.0 max=1.0 step=0.01 value="0.1">
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-3 col-sm-12">
+                <label class="form-label">Подсказки по форматированию:</label>
+              </div>
+              <div class="col-9 col-sm-12 form-group">
+                <div class="popover popover-bottom">
+                  <a class="btn btn-primary">Цвета(чата)</a>
+                  <div class="popover-container card" style="top:65%;">
+                    <img style="display:block;" src="/advert/img/clrs6.png">
+                  </div>
+                </div>
+                <div class="popover popover-bottom px-2">
+                  <a class="btn btn-primary">Сервер</a>
+                  <div class="popover-container card" style="top:65%;">
+                    {/time}, {/date}, {/addr}, {/port},
+                    {/hostname}, {/hostname_db}, {/slots}, {/players}, {/map}, {/nextmap}, {/tickrate}, {/timeleft}
+                  </div>
+                </div>
+                <div class="popover popover-bottom">
+                  <a class="btn btn-primary">Игрок</a>
+                  <div class="popover-container card" style="top:65%;">
+                    {\nick}, {\steamid}, {\steamid64}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-3 col-sm-12">
+                <label class="form-label">Текст сообщения:</label>
+              </div>
+              <div class="col-9 col-sm-12 form-group">
+                <textarea class="form-input" id="in_msg_text" name="msg_text" required placeholder="Введите текст..." rows="3"></textarea>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-3 col-sm-12">
+                <label class="form-label">Временные ограничения:</label>
+              </div>
+              <div class="col-9 col-sm-12 form-group">
+                <label class="form-label">Дата от:</label>
+                <input class="form-input" type="date" id="in_date_from" name="date_from" value="">
+                <label class="form-label">Дата до:</label>
+                <input class="form-input" type="date" id="in_date_to" name="date_to" value="">
+                <label class="form-label">Часы ("0-6;10-24;"):</label>
+                <input class="form-input" type="text" id="in_hours" name="hours" id="in_value" placeholder="Значение" value="0-24;">
+                <label class="form-label">Дни недели ("1-7;"):</label>
+                <input class="form-input" type="text" id="in_day_of_week" name="day_of_week" id="in_value" placeholder="Значение" value="0-7;">
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-3 col-sm-12">
+                <label class="form-label">Таргетинговые ограничения:<br>(не реализованно)</label>
+              </div>
+              <div class="col-9 col-sm-12 form-group">
+                <label class="form-switch">
+                  <input type="checkbox"><i class="form-icon"></i> Только для випов
+                </label>
+                <label class="form-label col-9" >Админ-флаги:</label>
+                <input class="form-input" type="text" id="in_admin_flags" name="admin_flags" id="in_value" placeholder="..." value="">
+                <label class="form-label" >Кол-во показов:</label>
+                <input class="form-input" type="number" id="in_views" name="views" placeholder="-1" value="-1" min=-1>
+                <label class="form-label" >Приоритет (меньше=выше):</label>
+                <input class="form-input" type="number" id="in_order" name="order" placeholder="1000" value="1000" min=1 max=1000>
+              </div>
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" type="submit" id="modal_submit">Добавить</button>
+        <a class="btn btn-link" href="#close">Закрыть</a>
+        </form>
+      </div>
+    </div>
+  </div>
+  <h3>Список рекламных сообщений:</h3>
+  <table class="table table-striped table-hover text-center table-scroll">
+    <thead>
+      <tr>
+        <th>id</th>
+        <th>Активн.</th>
+        <th>Сервера</th>
+        <th>Тип</th>
+        <th>Текст</th>
+        <th>Vip</th>
+        <th>Приоритет</th>
+        <th>Дни недели</th>
+        <th>Часы</th>
+        <th>Действия</th>
+      </tr>
+    </thead>
+    <tbody id="items_list">
+      <repeat group="{{@@ads}}" value="{{@adv}}">
+        <tr <check if="{{@adv.show==0}}">style="background: #dfdfdf;"</check> >
+          <td class="col-1">{{ @adv.adv_id }}</td>
+          <td class="col-1">{{ @adv.show }}</td>
+          <td class="text-italic">
+            <repeat group="{{@@adv.servers}}" value="{{@server}}">
+              {{@server.title}}
+            </repeat>
+          </td>
+          <td class="col-1">{{ @adv.msg_type }}</td>
+          <td class="col-5 text-break colorize">{{ @adv.msg_text|raw }}</td>
+          <td class="col-1">{{ @adv.is_vip }}</td>
+          <td class="col-1">{{ @adv.order }}</td>
+          <td class="col-1">{{ @adv.day_of_week }}</td>
+          <td class="col-1">{{ @adv.hours }}</td>
+          <td class="col-2"><a id="{{ @adv.adv_id }}" href="#ads_edit">Изменить</a> | <a class="confirm" href="/advert/ex/ads/{{@adv.adv_id}}/delete">Удалить</a></td>
+        </tr>
+      </repeat>
+    </tbody>
+  </table>
+</section>

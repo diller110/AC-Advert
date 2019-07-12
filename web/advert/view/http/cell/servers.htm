@@ -1,0 +1,94 @@
+<header>
+  <button class="btn btn-primary btn-action" style="margin-bottom: 10px;" id="btn_add_server"><i class="material-icons">add</i></button>
+  <div class="">
+    <input class="form-input" type="text" id="in_filter" placeholder="Поиск...">
+    <button class="btn btn-action"><i class="material-icons">line_style</i></button>
+  </div>
+</header>
+<section>
+  <div class="modal" id="modal_main">
+    <a href="#close" class="modal-overlay" aria-label="Close"></a>
+    <div class="modal-container">
+      <div class="modal-header">
+        <a href="#close" class="btn btn-clear float-right" aria-label="Close"></a>
+        <div class="modal-title h5" id="modal_title">Новый сервер:</div>
+      </div>
+      <form class="form-horizontal" action="/advert/ex/server" method="post">
+        <div class="modal-body">
+          <div class="content">
+              <input type="hidden" id="in_srv_id" name="srv_id" value="">
+              <div class="form-group">
+                <div class="col-3 col-sm-12">
+                  <label class="form-label" for="input-example-1">Название</label>
+                </div>
+                <div class="col-9 col-sm-12">
+                  <input class="form-input" type="text" name="title" id="in_title" required placeholder="Название">
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-3 col-sm-12">
+                  <label class="form-label" for="input-example-1">Адрес</label>
+                </div>
+                <div class="col-9 col-sm-12">
+                  <input class="form-input" type="text" name="ip" id="in_ip" required placeholder="Адрес">
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-3 col-sm-12">
+                  <label class="form-label" for="input-example-1">Порт</label>
+                </div>
+                <div class="col-9 col-sm-12">
+                  <input class="form-input" type="number" name="port" id="in_port" required placeholder="Порт">
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-3 col-sm-12">
+                  <label class="form-label" for="input-example-1">Rcon</label>
+                </div>
+                <div class="col-9 col-sm-12">
+                  <input class="form-input" type="text" name="rcon" id="in_rcon" required placeholder="Rcon">
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-3 col-sm-12">
+                  <label class="form-label" for="input-example-1">Таймер</label>
+                </div>
+                <div class="col-9 col-sm-12">
+                  <input class="form-input" type="number" name="adv_time" id="in_adv_time" placeholder="45" value="45">
+                </div>
+              </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" type="submit" id="modal_submit">Добавить</button>
+          <a class="btn btn-link" href="#close">Закрыть</a>
+        </div>
+      </form>
+    </div>
+  </div>
+  <h3>Список серверов:</h3>
+  <table class="table table-striped table-hover text-center">
+    <thead>
+      <tr>
+        <th>id</th>
+        <th>Название</th>
+        <th>Адрес</th>
+        <th>Порт</th>
+        <th>Таймер</th>
+        <th>Действия</th>
+      </tr>
+    </thead>
+    <tbody id="items_list">
+      <repeat group="{{@@servers}}" value="{{@server}}">
+        <tr>
+          <td>{{ @server.srv_id }}</td>
+          <td>{{ @server.title }}</td>
+          <td>{{ @server.ip }}</td>
+          <td>{{ @server.port }}</td>
+          <td>{{ @server.adv_time}}s</td>
+          <td class="col-2"><a class="confirm" href="/advert/ex/rcon/{{@server.srv_id}}">Обновить рекламу</a> | <a id="{{ @server.srv_id }}" href="#srv_edit">Изменить</a> | <a class="confirm" href="/advert/ex/server/{{@server.srv_id}}/delete">Удалить</a></td>
+        </tr>
+      </repeat>
+    </tbody>
+  </table>
+</section>

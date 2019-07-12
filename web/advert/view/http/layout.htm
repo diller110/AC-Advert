@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>AC:Advert: Рекламные сообщения</title>
+        {*
+            <link rel="icon" type="image/png" href="/img/favicon-32.png" sizes="32x32">
+            <link rel="icon" type="image/png" href="/img/favicon-128.png" sizes="128x128">
+        *}
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Scada:400,700&amp;subset=cyrillic-ext" rel="stylesheet">
+        <repeat group="{{ @styles }}" key={{@key}} value="{{@style}}">
+            <link rel="stylesheet" type="text/css" href="/advert/css/{{@style}}<check if="{{ !strpos(@style, '.css')}}">.css</check>">
+        </repeat>
+    </head>
+    <body>
+        <header>
+          <div class="logo">
+            <figure class="avatar avatar-lg" data-initial="Adv" style="background-color: #5755d9;"></figure>
+            Рекламные сообщения
+          </div>
+          <div class="btn-group btn-group-block">
+            <a href="/advert/" class="btn btn-primary">
+              Сервера
+            </a>
+            <a href="/advert/words" class="btn btn-primary">
+              Магические фразы
+            </a>
+            <a href="/advert/ads" class="btn btn-primary">
+              Реклама
+            </a>
+          </div>
+          <div class="links my-2">
+            <a href="https://hlmod.ru/resources/ac-advert-reklamnye-soobschenija.1237/" class="btn btn-primary">
+              HLMOD
+            </a>
+          </div>
+        </header>
+        <div class="back-plate"></div>
+        <main class="col-8 col-sm-11 p-centered">
+          <check if="{{ @@content }}">
+              <true><include href="{{ @content }}" /></true>
+              <false><include href="cell/servers.htm" /></false>
+          </check>
+        </main>
+        <script src="/advert/js/scripts.js"></script>
+    </body>
+</html>

@@ -1,0 +1,8 @@
+"ac_advert"
+{
+	"driver"	"mysql"
+	"host"		"localhost"
+	"database"	"DATABASE"
+	"user"		"USERNAME"
+	"pass"		"PASSWORD"
+}
