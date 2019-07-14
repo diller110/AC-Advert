@@ -1,7 +1,7 @@
 <?php
 $f3=require('lib/base.php');
 ini_set('always_populate_raw_post_data','-1');
-error_reporting(E_ALL);
+//error_reporting(E_ALL);
 $f3->config('app/config.ini');
 $f3->set('db', new DB());
 $f3->set('PREFIX', 'T.');
