@@ -1,51 +1,45 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>AC:Advert: Рекламные сообщения</title>
-        {*
-            <link rel="icon" type="image/png" href="/img/favicon-32.png" sizes="32x32">
-            <link rel="icon" type="image/png" href="/img/favicon-128.png" sizes="128x128">
-        *}
+        <title>{{@T.head_title}}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Scada:400,700&amp;subset=cyrillic-ext" rel="stylesheet">
         <repeat group="{{ @styles }}" key={{@key}} value="{{@style}}">
-            <link rel="stylesheet" type="text/css" href="/advert/css/{{@style}}<check if="{{ !strpos(@style, '.css')}}">.css</check>">
+            <link rel="stylesheet" type="text/css" href="{{@BASE}}/css/{{@style}}<check if="{{ !strpos(@style, '.css')}}">.css</check>">
         </repeat>
     </head>
     <body>
-        <header>
-          <div class="logo">
-            <figure class="avatar avatar-lg" data-initial="Adv" style="background-color: #5755d9;"></figure>
-            Рекламные сообщения
+      <header class="columns <check if="{{@@V.wider}}"><true>col-10</true><false>col-6</false></check> col-md-11 col-mx-auto">
+        <a class="logo" href="{{@BASE}}/">{{@T.logo_title}}</a>
+        <a class="primary col-ml-auto text-bold" href="//hlmod.ru/resources/ac-advert-reklamnye-soobschenija.1237/"><span style="color:#ffd9d9;">HL</span><span style="color: #cceaff;">MOD</span></a>
+      </header>
+      <main class="columns <check if="{{@@V.wider}}"><true>col-10</true><false>col-6</false></check> col-md-11 col-mx-auto">
+        <nav class="col-12 columns col-gapless">
+          <div class="" style="display: flex; flex-direction: row; margin: 0;">
+            <a class="item <check if="{{@@V.page=='servers'}}">active</check>" href="{{@BASE}}/">{{@T.servers}}</a>
+            <a class="item <check if="{{@@V.page=='words'}}">active</check>" href="{{@BASE}}/words">{{@T.magic_words}}</a>
+            <a class="item <check if="{{@@V.page=='ads'}}">active</check>" href="{{@BASE}}/ads">{{@T.ads}}</a>
           </div>
-          <div class="btn-group btn-group-block">
-            <a href="/advert/" class="btn btn-primary">
-              Сервера
-            </a>
-            <a href="/advert/words" class="btn btn-primary">
-              Магические фразы
-            </a>
-            <a href="/advert/ads" class="btn btn-primary">
-              Реклама
-            </a>
+          <div class="column"></div>
+          <div class="search">
+            <input type="text" id="in_filter" value="" placeholder="{{@T.search}}...">
+            <i class="material-icons">search</i>
           </div>
-          <div class="links my-2">
-            <a href="https://hlmod.ru/resources/ac-advert-reklamnye-soobschenija.1237/" class="btn btn-primary">
-              HLMOD
-            </a>
-          </div>
-        </header>
-        <div class="back-plate"></div>
-        <main class="col-8 col-sm-11 p-centered">
+          <check if="{{@@V.button}}">
+            <a class="secondary" href="{{@@V.button.href}}">{{@@V.button.text}}</a>
+          </check>
+        </nav>
+        <section class="col-12">
           <check if="{{ @@content }}">
               <true><include href="{{ @content }}" /></true>
               <false><include href="cell/servers.htm" /></false>
           </check>
-        </main>
-        <div class="p-centered text-center" style="color: lightgray;">
-          AC:Advert v.1.0b
-        </div>
-        <script src="/advert/js/scripts.js"></script>
+        </section>
+        <footer class="my-2 p-centered">
+          <a href="https://github.com/diller110/AC-Advert">AC:Advert v1.1a</a>
+        </footer>
+      </main>
+      <script src="{{@BASE}}/js/scripts.js"></script>
     </body>
 </html>

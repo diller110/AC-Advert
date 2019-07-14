@@ -28,7 +28,7 @@ bool useVip = false;
 
 public Plugin myinfo = {
 	name = "AC: Advertisement",	author = "diller110",
-	description = "MySQL-based advert", version = "1.0b"
+	description = "MySQL-based advert", version = "1.1a"
 };
 
 public void OnPluginStart() {
@@ -147,7 +147,7 @@ void SqlQueryAds(Database dbl, DBResultSet results, const char[] error, any data
 			adv.SetInt("msg_type", results.FetchInt(1));
 			adv.SetInt("date_from", results.FetchInt(2));
 			adv.SetInt("date_to", results.FetchInt(3));
-			adv.SetBool("is_vip", view_as<bool>(results.FetchInt(4)));	
+			adv.SetInt("is_vip", results.FetchInt(4));	
 			adv.SetInt("views", results.FetchInt(5));
 			results.FetchString(6, buff, STRLEN);
 			//PrintToServer("[AC:Advert] Input: %s", buff);
@@ -157,6 +157,7 @@ void SqlQueryAds(Database dbl, DBResultSet results, const char[] error, any data
 				adv.SetBool("changeable", true);
 			}
 			if(StrContains(buff, "{\\") != -1) {
+				ReplaceString(buff, sizeof(buff), "{\\nick}", "{\\.nick}");
 				adv.SetBool("userable", true);
 			}
 			//PrintToServer("[AC:Advert] Output: %s", buff);
@@ -229,8 +230,13 @@ public Action Timer_Main(Handle timer) {
 				if(!IsClientInGame(i) || IsFakeClient(i)) {
 					continue;
 				}
-				if(adv.GetBool("is_vip", false) && !useVip && !VIP_IsClientVIP(i)) {
-					continue;
+				if(useVip) {
+					if(adv.GetInt("is_vip", 0) == 1 && !VIP_IsClientVIP(i)) {
+						continue;
+					}
+					if(adv.GetInt("is_vip", 0) == -1 && VIP_IsClientVIP(i)) {
+						continue;
+					}
 				}
 				for (int i2 = 0; i2 < 5; i2++) {
 					if(userable) {
@@ -258,8 +264,13 @@ public Action Timer_Main(Handle timer) {
 				if(!IsClientInGame(i) || IsFakeClient(i)) {
 					continue;
 				}
-				if(adv.GetBool("is_vip", false) && !useVip && !VIP_IsClientVIP(i)) {
-					continue;
+				if(useVip) {
+					if(adv.GetInt("is_vip", 0) == 1 && !VIP_IsClientVIP(i)) {
+						continue;
+					}
+					if(adv.GetInt("is_vip", 0) == -1 && VIP_IsClientVIP(i)) {
+						continue;
+					}
 				}
 				if(userable) {
 					strcopy(buff_u, sizeof(buff_u), buff);
@@ -491,11 +502,11 @@ void FormatChangeable(char str[STRLEN]) {
 void FormatUserable(char str[STRLEN], int client) {
 	if (StrContains(str, "{\\") == -1) return;
 	char buff[64];
-	if(StrContains(str, "{\nick}") != -1) {
+	if(StrContains(str, "{\\.nick}") != -1) {
 		if(GetClientName(client, buff, sizeof(buff))) {
-			ReplaceString(str, sizeof(str), "{\nick}", buff);
+			ReplaceString(str, sizeof(str), "{\\.nick}", buff);
 		} else {
-			ReplaceString(str, sizeof(str), "{\nick}", "");
+			ReplaceString(str, sizeof(str), "{\\.nick}", "");
 		}
 	}
 	if (StrContains(str, "{\\") == -1) return;

@@ -10,6 +10,7 @@ class Main {
 	}
 	function login($f3, $params) {
 		Main::layout();
+		$f3->set('V.page', 'login');
 		$f3->set('content', 'cell/login.htm');
 		if($f3->exists('POST.pass')) {
 			if($f3->get('POST.pass') == '0') {
@@ -23,6 +24,11 @@ class Main {
 	}
 	function index($f3, $params) {
 		Main::layout();
+		$f3->set('V.page', 'servers');
+		$f3->set('V.button', [
+			'text'=>$f3->get('T.add_server'),
+			'href'=>'#btn_add'
+		]);
 		$f3->set('content', 'cell/servers.htm');
 		$servers = $f3->get('db')->server()->list2();
 		if($servers['status']) {
@@ -32,6 +38,11 @@ class Main {
 	}
 	function words($f3, $params) {
 		Main::layout();
+		$f3->set('V.page', 'words');
+		$f3->set('V.button', [
+			'text'=>$f3->get('T.add_magic_word'),
+			'href'=>'#btn_add'
+		]);
 		$f3->set('content', 'cell/words.htm');
 		$servers = $f3->get('db')->words()->list2();
 		if($servers['status']) {
@@ -41,6 +52,12 @@ class Main {
 	}
 	function ads($f3, $params) {
 		Main::layout();
+		$f3->set('V.page', 'ads');
+		$f3->set('V.wider', 1);
+		$f3->set('V.button', [
+			'text'=>$f3->get('T.add_ads'),
+			'href'=>'#btn_add'
+		]);
 		$f3->set('content', 'cell/ads.htm');
 
 		$servers = $f3->get('db')->server()->list2();
@@ -81,6 +98,7 @@ class Main {
 		$f3->push('styles', 'content-tools.min.css');
 		$f3->push('styles', 'spectre.min.css');
 		$f3->push('styles', "styles");
+		if($f3->get('dark_mode')) $f3->push('styles', 'styles.dark');
 
 		$f3->set('theme_color', '#E56E41');
 
@@ -89,7 +107,6 @@ class Main {
 			"color-ancent" => "#e4a035",
 			"color-text-primary" => "#333"
 		));
-
 	}
 	static function render() {
 		global $f3;
