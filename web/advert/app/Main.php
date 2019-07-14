@@ -33,7 +33,7 @@ class Main {
 		$servers = $f3->get('db')->server()->list2();
 		if($servers['status']) {
 			$f3->set('servers', $servers['res']);
-		}
+		} else $f3->set('servers', array());
 		Main::render();
 	}
 	function words($f3, $params) {
@@ -47,7 +47,7 @@ class Main {
 		$servers = $f3->get('db')->words()->list2();
 		if($servers['status']) {
 			$f3->set('words', $servers['res']);
-		}
+		} else $f3->set('words', array());
 		Main::render();
 	}
 	function ads($f3, $params) {
@@ -86,7 +86,7 @@ class Main {
 				}
 			}
 			$f3->set('ads', $ads);
-		}
+		} else $f3->set('ads', array());
 		Main::render();
 	}
 
