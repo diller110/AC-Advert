@@ -69,6 +69,20 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
+-- Table `servers`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `servers` (
+  `srv_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `ip` VARCHAR(64) NOT NULL,
+  `port` INT NOT NULL,
+  `title` VARCHAR(128) NULL DEFAULT 'Server',
+  `rcon` VARCHAR(192) NULL,
+  `adv_time` FLOAT NULL DEFAULT 45,
+  PRIMARY KEY (`srv_id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
 -- Table `server_ads`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `server_ads` (
@@ -87,21 +101,6 @@ CREATE TABLE IF NOT EXISTS `server_ads` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `servers`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `servers` (
-  `srv_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `ip` VARCHAR(64) NOT NULL,
-  `port` INT NOT NULL,
-  `title` VARCHAR(128) NULL DEFAULT 'Server',
-  `rcon` VARCHAR(192) NULL,
-  `adv_time` FLOAT NULL DEFAULT 45,
-  PRIMARY KEY (`srv_id`))
-ENGINE = InnoDB;
-
 
 -- -----------------------------------------------------
 -- View `ads`

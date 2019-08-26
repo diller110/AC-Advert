@@ -1,4 +1,4 @@
-<?
+<?php
 /*
     DataBaseBridge class, if for centralized work with database, wrap some boring staff.
     All incoming data, will check, escape.
