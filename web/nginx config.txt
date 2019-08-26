@@ -1,0 +1,7 @@
+в server { ... }
+
+#AC:Advert https://hlmod.ru/threads/ac-advert-reklamnye-soobschenija.49238/
+location /advert {
+	index index.php index.html index.htm;
+	try_files $uri /advert/index.php?$query_string;
+}

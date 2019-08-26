@@ -24,6 +24,13 @@ $f3->route('GET /ex/ads/@id','Ex->ads');
 $f3->route('POST /ex/ads','Ex->adsPost');
 $f3->route('GET /ex/ads/@id/delete','Ex->adsDelete');
 
+
+$f3->route('GET|POST /app', function($f3) {
+	$f3->reroute('@main');
+});
+$f3->route('GET|POST /app/*', function($f3) {
+	$f3->reroute('@main');
+});
 $f3->route('GET /css/@file', function($f3) {
 	header('Content-Type: text/css');
 	echo $f3->read($f3->get('UI').'css/'.$f3->get('PARAMS.file'));
