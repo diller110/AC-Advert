@@ -8,7 +8,7 @@
 #include <ripext>
 #include <regex>
 
-#define PLUGIN_VERSION "2.0a"
+#define PLUGIN_VERSION "2.0b"
 
 public Plugin myinfo = {
 	name = "AC: Advert v2",	author = "diller110",
@@ -19,7 +19,7 @@ bool authorized = false;
 int adv_time = 45;
 bool useVip = false;
 HTTPClient httpClient;
-ConVar cvToken = null, cvProvider = null;
+ConVar cvToken = null, cvProvider = null, cvCmd = null, cvForceIp = null;
 char provider[64], token[32];
 JSONArray ads = null;
 int current = 0;
@@ -28,6 +28,8 @@ Handle mainTimer = null;
 public void OnPluginStart() {	
 	cvProvider = CreateConVar("sm_adv_provider", "", "Url of data provider");
 	cvToken = CreateConVar("sm_adv_token", "", "Account token");
+	cvCmd = CreateConVar("sm_adv_allow_cmd", "0", "Enable ServerExecute from adv cmd");
+	cvForceIp = CreateConVar("sm_adv_force_ip", "", "Force set server ip (empty - default, 1 - hostip, or custom ip)");
 	
 	RegServerCmd("sm_adv_update", Cmd_AdvUpdate);
 }
@@ -71,11 +73,17 @@ public void ReAuth() {
 	}
 	httpClient = new HTTPClient(provider);
 	httpClient.SetHeader("Authorization", token);
-	char buff[8];
+	char buff[32];
 	Format(buff, 8, "%d", FindConVar("hostport").IntValue);
 	httpClient.SetHeader("Serverport", buff);
 	httpClient.SetHeader("Pluginver", PLUGIN_VERSION);
-	
+	if(cvForceIp.BoolValue) {
+		cvForceIp.GetString(buff, sizeof(buff));
+		if(StrEqual(buff, "1")) {
+			FindConVar("net_public_adr").GetString(buff, sizeof(buff));
+		}
+		httpClient.SetHeader("Forceip", buff);
+	}
 	httpClient.Get("auth", OnAuthReceived);
 }
 public void OnAuthReceived(HTTPResponse response, any value) {
@@ -149,6 +157,14 @@ public Action Timer_Main(Handle timer) {
 	if(current >= ads.Length) current = 0;
 	if (adv == null)SetFailState("[AC:Adv] Timer_Main: Invalid advert object.");
 	PrintAdvert(adv);
+	if(cvCmd.BoolValue) {
+		static char buff[128];
+		adv.GetString("cmd", buff, sizeof(buff));
+		if(buff[0]) {
+			LogMessage("[AC:Adv] Execute adv cmd: \"%s\"", buff);
+			ServerCommand(buff);
+		}
+	}
 	delete adv;
 	return Plugin_Continue;
 }
