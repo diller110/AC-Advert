@@ -1,220 +1,246 @@
-@primary:   #42ccbb;
-@primaryText: #37394d;
-@secondary: #13ac4c;
-@secondaryText: #a9adb9;
+@import "tailwind.css";
 
-
-
+@primary: #8DA2B6;
+@secondary: #48bb78;
+@background: #eff3f6;
 
 body {
   font-family: "Scada", sans-serif;
   min-width: 360px;
-  background: lighten(@secondaryText, 25%);
 }
 
-button {
-  border: none;
-}
-input {
-  border: none;
-  border-radius: 5px;
-  box-shadow: 0 0 5px -3px @primaryText;
-  padding: 6px;
-}
-.f-input {
-  background-color: lighten(@secondaryText, 25%) !important;
-  box-shadow: inset 0 0 5px -3px @primaryText;
-  height: 32px;
-
-  &:checked+.form-icon {
-    background: @primary !important;
-    border-color: @primary !important;
-  }
+.gr-input {
+	background-color: #edf2f7;
+	border-radius: .25rem;
+	height: 2rem;
+	padding: .25rem;
+	box-shadow: inset 0 2px 4px 0 rgba(0,0,0,.06);
 }
 
-a, a:visited {
-  color: @primaryText;
+.fontSize-xs 	{ font-size: 8px; }
+.fontSize-s 	{ font-size: 12px; }
+.fontSize-sm 	{ font-size: 16px; }
+.fontSize-m 	{ font-size: 18px; }
+.fontSize-l 	{ font-size: 24px; }
+.fontSize-xl 	{ font-size: 32px; }
+.fontSize-xxl 	{ font-size: 40px; }
+
+#popup, #hudPopup {
+	opacity: 100%;
+	transition: all 0.5s ease;
+	& > div {
+		transition: all 0.2s ease;
+		margin-top: 0;
+	}
+	&.invisible {
+		opacity: 0;
+		& > div {
+
+			margin-top: -10%;
+		}
+	}
+
 }
-a:hover, a.active {
-  text-decoration: none;
+
+.form-switch {
+	display: block;
+	line-height: 1.2rem;
+	margin: .2rem 0;
+	min-height: 1.4rem;
+	padding: .1rem .4rem .1rem 1.2rem;
+	position: relative;
+	padding-left: 2rem;
+
+	input {
+		clip: rect(0, 0, 0, 0);
+		height: 1px;
+		margin: -1px;
+		overflow: hidden;
+		position: absolute;
+		width: 1px;
+		&:focus + .form-icon {
+			border-color: @secondary;
+		}
+		&:checked + .form-icon {
+			background: @secondary;
+			border-color: @secondary;
+		}
+	}
+
+	.form-icon {
+		border: .05rem solid #bcc3ce;
+		cursor: pointer;
+		display: inline-block;
+		position: absolute;
+		transition: background .2s, border .2s, box-shadow .2s, color .2s;
+		background: #bcc3ce;
+		background-clip: padding-box;
+		border-radius: .45rem;
+		height: .9rem;
+		left: 0;
+		top: .25rem;
+		width: 1.75rem;
+		&::before {
+			background: #fff;
+			border-radius: 50%;
+			content: "";
+			display: block;
+			height: .8rem;
+			left: 0;
+			position: absolute;
+			top: 0;
+			transition: background .2s, border .2s, box-shadow .2s, color .2s, left .2s;
+			width: .8rem;
+		}
+	}
+	input {
+		&:checked + .form-icon {
+			&::before {
+				left: 14px;
+			}
+		}
+		&:active + .form-icon {
+			&::before {
+				background: @secondary;
+			}
+		}
+	}
 }
-a.primary, a.secondary {
-  color: white;
+.text-hint {
+	i:hover {
+		& + div {
+			display: block;
+		}
+	}
 }
-a > i {
-  color: fadeout(@secondary, 50%);
+.colorize {
+	color: white;
+	background: url(/../../img/back.png) center;
+	text-align: left;
+	background-size: cover;
+	white-space: nowrap;
+	vertical-align: middle;
+	padding: 8px;
+	line-height: 1.1;
+	min-width: 300px;
 }
-.primary-text {
-  color: @primaryText;
+.chips {
+	span {
+		font-size: .75rem;
+		margin: .75px;
+		color: white;
+		padding: 0 .25rem;
+		border-radius: .25rem;
+	}
 }
-.secondary-text {
-  color: @secondaryText;
+.chips2 {
+	span {
+		cursor: pointer;
+		font-size: .75rem;
+		margin: 2px 1px;
+		color: white;
+		padding: 0 .25rem;
+		border-radius: .25rem;
+	}
 }
-.primary, .secondary {
-  color: white;
-  border-radius: 5px;
-  padding: 8px 20px;
+
+table {
+	tr:nth-child(even) {
+		background: #f6f8fb;
+	}
+	i:hover {
+		color: #48BB78;
+	}
 }
-.primary {
-  border: none;
-  background: @primary;
-  &:hover {
-    background: lighten(@primary, 10%)
-  }
+.tab-active {
+	color: #2d3748;
+	font-weight: bolder;
+	background: white;
+	box-shadow: 0 18px 0 0 #fff;
+	border-radius: 5px 5px 0 0;
 }
-.secondary {
-  background: @secondary;
-  &:hover {
-    background: lighten(@secondary, 10%)
-  }
-}
-body > header {
-  margin-top: 40px;
-  margin-bottom: 20px;
-  a:first-child {
-    color: @primaryText;
-    font-size: 24px;
-  }
-}
-body > main {
-  nav {
-    flex-wrap: wrap-reverse !important;
-    & > * {
-      margin: 8px 5px;
-    }
-    a.item {
-      background: @secondaryText;
-      color: lighten(@secondaryText, 25%);
-      border-radius: 5px;
-      padding: 8px 20px;
-      margin: 8px 5px;
-      &.active {
-        font-weight: bold;
-        background: white;
-        color: @primaryText;
-        box-shadow: 0 10px 0 0 white;
-        border-radius: 5px 5px 0 0;
-      }
-      &:first-child {
-        margin-left: 0;
-      }
-      @media (max-width: 400px) {
-        padding: 8px 4.7vw;
-      }
-    }
-    .search {
-      position: relative;
-      margin-left: 0;
-      &:hover {
-        i {
-          visibility: hidden;
-        }
-      }
-      i {
-        float: right;
-        position: absolute;
-        top: 3px;
-        right: 4px;
-        background: @primary;
-        color: white;
-        border-radius: 5px;
-        padding: 1px;
-      }
-    }
-    .secondary {
-      padding: 8px 20px;
-    }
-  }
-  & > section {
-    background: white;
-    padding-bottom: 20px;
-    h5 span {
-      display: block;
-      float: right;
-      font-size: medium;
-      line-height: 26px;
-    }
-    a > i {
-      line-height: 0.6 !important;
-      vertical-align: middle;
-    }
-  }
-  .modal2 {
+
+// Source: https://github.com/picturepan2/spectre/blob/master/src/_tooltips.scss
+// Tooltips
+.tooltip {
+  position: relative;
+  &::after {
+    background: rgba(48,55,66,.95);
+    border-radius: .1rem;
+    bottom: 100%;
+    color: #fff;
+    content: attr(data-tooltip);
+    display: block;
+    font-size: 0.8em;
+    left: 50%;
+    max-width: 320px;
     opacity: 0;
-    visibility: hidden;
-    z-index: 100;
-    position: relative;
-    transition: all 0.3s;
-
-    & > .modal2-close {
-      display: block;
-      position: fixed;
-      background: fadeout(@primaryText, 25%);
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+    overflow: hidden;
+    padding: .2rem .4rem;
+    pointer-events: none;
+    position: absolute;
+    text-overflow: ellipsis;
+    transform: translate(-50%,.4rem);
+    transition: opacity .2s,transform .2s;
+    white-space: pre;
+    z-index: 300;
+  }
+  &:focus,
+  &:hover {
+    &::after {
+      opacity: 1;
+      transform: translate(-50%,-.2rem);
     }
-    & > section {
-      top: 47%;
-      max-height: 95%;
-      border-radius: 5px;
-      position: fixed;
-      //top: 50%;
-      left: 50%;
-      -webkit-transform: translate(-50%, -50%);
-      transform: translate(-50%, -50%);
-      min-height: 200px;
-      min-width: 200px;
-      background: white;
-      display: flex;
-      flex-direction: column;
-      transition: all 0.3s;
+  }
+  &[disabled],
+  &.disabled {
+    pointer-events: auto;
+  }
 
-      & > header {
-        border-radius: 5px 5px 0 0;
-        background: @primaryText;
-        color: @secondaryText;
-        font-size: 1rem;
-        height: 45px;
-        padding: 0 0 0 15px;
-        line-height: 45px;
-        a {
-          display: block;
-          position: absolute;
-          right: 15px;
-          top: 0;
-          i { color: @secondaryText; }
-        }
-      }
-      &>main {
-        padding: 5px 20px;
-        overflow-y: scroll;
-      }
-      &>footer {
-        text-align: right;
-        padding: 10px 20px;
-      }
+  &.tooltip-right {
+    &::after {
+      bottom: 50%;
+      left: 100%;
+      transform: translate(-.2rem, 50%);
     }
-    &.active {
-      visibility: visible;
-      opacity: 0.98;
-      & > section {
-        top: 50%;
+    &:focus,
+    &:hover {
+      &::after {
+        transform: translate(.2rem, 50%);
       }
     }
   }
-  .colorize {
-    background: url(/../../img/back.png) center;
-    text-align: left;
-    background-size: cover;
-    white-space: nowrap;
+
+  &.tooltip-bottom {
+    &::after {
+      bottom: auto;
+      top: 100%;
+      transform: translate(-50%, -.4rem);
+    }
+    &:focus,
+    &:hover {
+      &::after {
+        transform: translate(-50%, .2rem);
+      }
+    }
+  }
+
+  &.tooltip-left {
+    &::after {
+      bottom: 50%;
+      left: auto;
+      right: 100%;
+      transform: translate(.4rem, 50%);
+    }
+    &:focus,
+    &:hover {
+      &::after {
+        transform: translate(-.2rem, 50%);
+      }
+    }
   }
 }
 
-footer > a, footer > a:visited {
-  color: lighten(@secondaryText, 20%);
-}
 
 /* Webkit scrollbar */
 ::-webkit-scrollbar {

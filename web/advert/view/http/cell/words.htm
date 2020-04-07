@@ -1,60 +1,299 @@
-<h5 class="m-2 p-2">{{@T.magic_words}}:<span>{{@T.total}}: <check if="{{is_array(@@words)}}">{{count(@@words)}}</check></span></h5>
-<div class="" style="overflow-x: scroll;">
-  <table class="table table-striped table-hover text-center">
-    <thead>
-      <tr>
-        <th class="">Id</th>
-        <th class="text-left">{{@T.key}}</th>
-        <th class="text-left">{{@T.value}}</th>
-        <th  style="width: 20%;">{{@T.action}}</th>
-      </tr>
-    </thead>
-    <tbody id="items_list">
-      <repeat group="{{@@words}}" value="{{@word}}">
-        <tr>
-          <td class="">{{ @word.word_id }}</td>
-          <td class="text-left">{{"{"}}{{ @word.key }}{{"}"}}</td>
-          <td class="text-left">{{ @word.value }}</td>
-          <td class=""  style="white-space: nowrap;">
-            <a class="tooltip" data-tooltip="{{@T.edit}}" id="{{@word.word_id}}" href="#btn_edit"><i id="{{@word.word_id}}" class="material-icons">edit</i></a>
-            <a class="tooltip" data-tooltip="{{@T.delete}}" id="{{@word.word_id}}" href="{{@BASE}}/ex/words/{{@word.word_id}}/delete"><i class="material-icons">delete_forever</i></a>
-          </td>
-        </tr>
-      </repeat>
-    </tbody>
-  </table>
-</div>
-<div class="modal2">
-  <a class="modal2-close"></a>
-  <section class="col-3 col-md-11">
-    <header>
-      <span id="title" lang1="{{@T.add_magic_word}}" lang2="{{@T.edit_magic_word}}">{{@T.add_magic_word}}:</span>
-      <a href="#close"><i class="material-icons">close</i></a>
-    </header>
-    <main>
-      <form class="form-horizontal" action="{{@BASE}}/ex/words" method="post">
-        <input type="hidden" id="in_word_id" name="word_id" value="">
-        <div class="form-group">
-          <div class="col-3 col-sm-12">
-            <label class="form-label" for="input-example-1">{{@T.key}}:</label>
-          </div>
-          <div class="col-9 col-sm-12">
-            <input class="form-input f-input" type="text" name="key" id="in_key" required placeholder="{{@T.key}}">
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="col-3 col-sm-12">
-            <label class="form-label" for="input-example-1">{{@T.value}}:</label>
-          </div>
-          <div class="col-9 col-sm-12">
-            <textarea class="form-input f-input" type="text" name="value" id="in_value" required placeholder="{{@T.value}}"></textarea>
-          </div>
-        </div>
+<div id="vueEl" class="mt-3 rounded-b rounded-tr bg-white font-thin text-gray-800">
+   <div class="flex justify-between items-center mx-4 p-1">
+	  <div class="text-xl">
+		  Магические фразы:
+	  </div>
+	  <div class="">
+		  Всего: [[total]]
+	  </div>
+   </div>
+   <div v-if="objs" class="overflow-x-scroll">
+		<div v-if="haveChanges" class="leading-none cursor-pointer font-medium bg-red-400 text-white rounded text-center px-1 flex justify-center items-center h-8 mx-3" v-on:click="saveChanges">
+		  <i class="material-icons mr-2">save</i>
+		  Имеются несохранённые данные! Сохранить?
+		</div>
+		<table class="w-full text-center">
+		  <tr class="border-b-2">
+			  <td class="w-12 py-2">Id</td>
+			  <td class="" style="min-width: 150px;">Ключ</td>
+			  <td class="" style="min-width: 150px;">Значение</td>
+			  <td class="text-center">Действие</td>
+		  </tr>
+		  <tr is="tablerow"
+			  v-for="obj in objsFiltered"
+			  v-bind:key="obj.word_id"
+			  v-bind:obj="obj"
+			  v-on:deleteconfirm="deleteconfirm(obj)"
+			  v-on:edit="edit(obj)">
+		  </tr>
+		</table>
+	  <br>
+	  <div class="text-center leading-none text-gray-400 pb-3">
+		  Нажмите на значение чтобы изменить.<br>Нажмите <span class="text-gray-500">Enter</span> в момент редактирования для сохранения 1 зачения.
+	  </div>
+   </div>
+	<div v-else class="mt-0 m-4 text-center text-2xl text-gray-500 pb-6">
+		<i class="material-icons" style="font-size: 100px;">highlight_off</i><br>
+		Кажется у вас еще нет магических слов...
+	</div>
+	<!--
 
-    </main>
-    <footer>
-      <button class="primary mx-2" type="submit" lang1="{{@T.add}}" lang2="{{@T.edit}}">{{@T.add}}</button>
-      <a class="cancel" href="#close">{{@T.close}}</a>  </form>
-    </footer>
-  </section>
+	-->
+	<div id="popup" class="invisible z-10 fixed top-0 left-0 w-full h-full bg-red-400 flex items-center justify-center align-middle text-gray-700" style="background: rgba(141,162,182, 0.5);">
+		<div class="fixed top-0 left-0 w-full h-full" v-on:click="hidePopup"></div>
+	   <div class="z-10 flex flex-col w-1/4" style=" min-width: 350px; min-height: 200px; max-height: 95%;">
+		  <div class="text-xl p-2 px-3 text-gray-300 bg-gray-700 rounded-t-lg flex justify-between items-center">
+			  <span>[[isEdit?'Изменить':'Добавить']] магическое слово:</span>
+			  <i class="material-icons cursor-pointer" v-on:click="hidePopup">close</i>
+		  </div>
+		  <div class="bg-white p-3 flex flex-col  overflow-y-auto">
+			  <input type="hidden" name="srv_id" v-model="popup_obj.srv_id">
+			  <div class="flex flex-row items-center w-full mb-3">
+				  <div class="w-1/3">Ключ:</div>
+				  <input class="bg-gray-200 shadow-inner rounded h-8 p-2 w-full" type="text" name="" placeholder="Ключ" v-model="popup_obj.key">
+			  </div>
+			  <div class="flex flex-row items-center w-full mb-3">
+				  <div class="w-1/3">Значение:</div>
+				  <input class="bg-gray-200 shadow-inner rounded h-8 p-2 w-full" type="text" name="" placeholder="Значение" v-model="popup_obj.value">
+			  </div>
+		  </div>
+		  <div class="rounded-b-lg bg-white flex justify-end p-3 pt-2">
+			  <div class="cursor-pointer mr-3 font-medium text-white bg-green-500 hover:bg-green-300 text-center rounded px-3 flex items-center h-8 " v-on:click="addObject">
+				  [[isEdit?'Изменить':'Добавить']]
+			  </div>
+			  <div class="cursor-pointer  text-center px-3 flex items-center h-8" v-on:click="hidePopup">Закрыть</div>
+		  </div>
+	   </div>
+	</div>
 </div>
+<!--
+
+-->
+<template id="tablerow">
+	<tr height="40px">
+		 <td class="">[[obj.word_id]]</td>
+		 <td class="pl-2">
+			 <input class="outline-none text-center w-full bg-transparent hover:bg-white" type="text" name="" ref="keyBraced" v-model="keyBraced" v-on:keyup.enter="saveField('key')">
+		 </td>
+		 <td class="">
+			 <input class="outline-none text-center w-full bg-transparent hover:bg-white" type="text" name="" v-model="obj.value" v-on:keyup.enter="saveField('value')">
+		 </td>
+		 <td class="text-green-300 text-center whitespace-no-wrap w-40">
+			 <span class="tooltip" data-tooltip="Изменить" v-on:click="$emit('edit', 'obj')">
+				 <i class="material-icons">edit</i>
+			 </span>
+			 <span class="tooltip" data-tooltip="Удалить" v-on:click="$emit('deleteconfirm', 'obj')">
+				 <i class="material-icons">delete_forever</i>
+			 </span>
+		 </td>
+	</tr>
+</template>
+<script>
+Vue.component('tablerow', {
+	data: function() {
+		return {
+			keyFocused: false,
+			original: null
+		}
+	},
+	computed: {
+		haveChanges: function() { // 4 часа жизни на эти 10 строк кода....
+			delete this.obj.haveChanges;
+			if(!_.isEqual(this.obj, this.original)) {
+				this.$set(this.obj, 'haveChanges', true);
+				return true;
+			} else {
+				this.$set(this.obj, 'haveChanges', undefined);
+				return false;
+			}
+		},
+		keyBraced: {
+			get: function() {
+				return this.keyFocused?this.obj.key:'{'+this.obj.key+'}'; // Еще 3 часа жизни на эти скобки
+			},
+			set: function(newval) {
+				this.obj.key = newval.replace('{', '').replace('}', '');
+			}
+		}
+	},
+	watch: {
+		'obj.key': function(newval) {
+			this.obj.key = newval.trim();
+			this.haveChanges;
+		},
+		'obj.value': function(newval) {
+			//this.obj.value = newval.trim();
+			this.haveChanges;
+		},
+	},
+	methods: {
+		saveField: function(field) {
+			if(this.obj[field] == this.original[field]) {
+				return;
+			}
+			var this2 = this;
+			axios.post('{{@BASE}}/api/words/save/field', {
+				word_id: this2.obj.word_id,
+				field: field,
+				value: this2.obj[field]
+			}).then(function (response) {
+				if(response.data == null) {
+					console.log(response);
+					vueFlash.flash(true, 'Ошибка при обновлении!');
+					return;
+				}
+				if(response.data === 1) {
+					this2.original[field] = this2.obj[field];
+					this2.haveChanges;
+					vueFlash.flash(false, 'Поле обновлено!');
+					return;
+				}
+				vueFlash.flash(true, 'Ошибка при обновлении!');
+			});
+		}
+	},
+	props: [
+		'obj',
+	],
+	template: '#tablerow',
+	mounted: function() {
+		this.original = { ...this.obj};
+		var this2 = this;
+		this.$refs.keyBraced.onfocus = function(ev) {
+			this2.keyFocused = true;
+		};
+		this.$refs.keyBraced.onblur = function(ev) {
+			this2.keyFocused = false;
+		};
+	},
+	delimiters: ['[[' , ']]']
+})
+var def_obj =  {
+	word_id: -1,
+	key: '',
+	value: '',
+};
+var vueInst = new Vue({
+	el: '#vueEl',
+	data: {
+		filterstr: '',
+		popup_obj: def_obj,
+		objs: null,
+		isEdit: false,
+	},
+	computed: {
+		objsFiltered: function() {
+			var str = this.filterstr.toLowerCase();
+			var objs = {};
+			for(let i = 0; i<this.objs.length; i++) {
+				if(str.length < 1) {
+					objs[this.objs[i].srv_id] = this.objs[i];
+					continue;
+				}
+				if(String(this.objs[i].key).toLowerCase().indexOf(str) == -1 &&
+					String(this.objs[i].value).toLowerCase().indexOf(str) == -1) {
+					continue;
+				}
+				objs[this.objs[i].srv_id] = this.objs[i];
+			}
+			return objs;
+		},
+		total: function() {
+			if(this.objs == null) return 0;
+			return this.objs.length;
+		},
+		haveChanges: function() {
+			if(this.objs == null) return false;
+			for(let i = 0; i<this.objs.length;i++) {
+				if(this.objs[i].haveChanges != undefined) return true;
+			}
+			return false;
+		}
+	},
+	methods: {
+		filterInput: function(event) {
+			this.filterstr = event.target.value;
+		},
+		addObject: function() {
+			if(this.popup_obj == null) return;
+			var this2 = this;
+			axios.post('{{@BASE}}/api/words/save', {
+				data: this2.popup_obj,
+			}).then(function (response) {
+				if(response.data == null) {
+					console.log(response);
+					return;
+				}
+				vueFlash.flash(false, 'Магическое слово '+(this2.isEdit?'изменёно':'добавлено'));
+			}).then(() => {
+				this2.$nextTick(function () {
+			    this2.getWords();
+				 this2.hidePopup();
+			 	});
+			});
+		},
+		deleteconfirm: function(obj) {
+			var result = confirm('Вы уверены что хотите удалить магическое слово:\n{'+obj.key+'} : '+obj.value);
+			if(result) {
+				axios.get('{{@BASE}}/api/words/delete/'+obj.word_id).then(function (response) {
+					document.location.reload();
+				});
+			}
+		},
+		edit: function(obj) {
+			this.isEdit = true;
+			this.popup_obj = obj;
+			this.showPopup();
+		},
+		newButton: function() {
+			this.isEdit = false;
+			this.popup_obj = {...def_obj};
+			this.showPopup();
+		},
+		showPopup: function() {
+			document.querySelector("#popup").classList.remove("invisible");
+		},
+		hidePopup: function() {
+			document.querySelector("#popup").classList.add("invisible");
+		},
+		getWords: function() {
+			var this2 = this;
+			axios.get('{{@BASE}}/api/words/get').then(function (response) {
+				if(response.data == null) {
+	 				console.log(response);
+					return;
+				}
+				if(response.data == 0) { // Серверов у пользователя нет
+					this2.objs = null;
+					return;
+				}
+				this2.objs = response.data;
+			});
+		},
+		saveChanges: function() {
+			var this2 = this;
+			for(let i = 0; i<this2.objs.length;i++) {
+				if(this2.objs[i].haveChanges == undefined) continue;
+				axios.post('{{@BASE}}/api/words/save', {
+					data: this2.objs[i],
+				}).then(function (response) {
+					if(response.data == null) {
+						console.log(response);
+						return;
+					}
+					vueFlash.flash(false, 'Список обновлён');
+				}).then(() => {
+					this2.$nextTick(function () {
+				    this2.getWords();
+					 this2.hidePopup();
+				 	});
+				});
+			}
+		}
+	},
+	mounted: function() {
+		this.getWords();
+	},
+	delimiters: ['[[' , ']]']
+});
+</script>

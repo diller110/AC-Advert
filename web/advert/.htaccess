@@ -7,6 +7,7 @@ RewriteEngine On
 #
 # RewriteBase /
 
+RewriteRule ^(app)\/|^(lib)\/|^(view)\/ - [R=404]
 RewriteRule ^(tmp)\/|\.ini$ - [R=404]
 
 RewriteCond %{REQUEST_FILENAME} !-l

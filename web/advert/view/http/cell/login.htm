@@ -1,5 +1,111 @@
-<h5 class="m-2 p-2">{{@T.login}}:</h5>
-<form class="" action="" method="post">
-  <input class="f-input" style="margin-left: 20px;" type="text" name="pass" placeholder="...">
-  <button class="primary" type="submit">{{@T.login}}</button>
-</form>
+<div id="vueEl" class="mt-3 rounded-b rounded-tr bg-white font-thin text-gray-800">
+	<div class="flex justify-between items-center mx-4 p-1">
+	  <div class="text-xl">
+		  Войти:
+	  </div>
+	</div>
+	<div class="w-full ml-5 pb-8">
+		<div v-html="text"></div>
+		<form class="flex flex-col" action="" method="post">
+		  <input class="bg-gray-200 mr-3 shadow-inner rounded h-8 p-2 w-64 mb-3" type="text" v-model="login" required placeholder="Логин">
+		  <input class="bg-gray-200 mr-3 shadow-inner rounded h-8 p-2 w-64 mb-3" type="password" v-model="password" required placeholder="Пароль">
+		  <div id="emailField" class="text-gray-700 text-sm hidden">
+			  Введите email на случай потери доступа:<br>
+			  <input class="bg-gray-200 mr-3 shadow-inner rounded h-8 p-2 w-64 mb-3" type="text" v-model="email" placeholder="Email">
+		  </div>
+		  <div class="flex">
+			  <button class="text-white bg-green-500 hover:bg-green-300 text-center rounded px-4 flex items-center h-8 mr-3 w-20" name="log" v-on:click.prevent="onLog">Войти</button>
+   		  <button class="text-white bg-gray-500 hover:bg-gray-300 text-center rounded px-3 flex items-center h-8" name="reg" v-on:click.prevent="onReg">Зарегистрироваться</button>
+		  </div>
+		</form>
+	</div>
+</div>
+<script>
+var vueInst = new Vue({
+	el: '#vueEl',
+	data: {
+		text: "",
+		login: "",
+		password: "",
+		email: ""
+	},
+	methods: {
+		onLog: function(event) {
+			this.toggleEmail(false);
+			var this2 = this;
+			axios.post('{{@BASE}}/api/login', {
+				data: {
+					login: this2.login,
+					password: this2.password,
+					email: this2.email,
+					action: 'login'
+				},
+			}).then(function (response) {
+				if(response.data == null) {
+					console.log('Request error:');
+					console.log(response);
+					return;
+				}
+				var data = response.data;
+				switch (data.res) {
+					case -1:
+						this2.text = data.text;
+						break;
+					case -2:
+						this2.text = data.text;
+						this2.toggleEmail(true);
+						break;
+					case 1:
+						window.location = "{{@BASE}}/login";
+					default:
+						console.log(response.data);
+						break;
+				}
+			});
+		},
+		onReg: function(event) {
+			this.toggleEmail(true);
+			var this2 = this;
+			axios.post('{{@BASE}}/api/login', {
+				data: {
+					login: this2.login,
+					password: this2.password,
+					email: this2.email,
+					action: 'register'
+				},
+			}).then(function (response) {
+				if(response.data == null) {
+					console.log('Request error:');
+					console.log(response);
+					return;
+				}
+				var data = response.data;
+				switch (data.res) {
+					case -1:
+						this2.text = data.text;
+						break;
+					case -2:
+						this2.text = data.text;
+						this2.toggleEmail(true);
+						break;
+					case 1:
+						window.location = "{{@BASE}}/login";
+					default:
+						console.log(response.data);
+						break;
+				}
+			});
+		},
+		toggleEmail: function(show = false) {
+			var emailField = document.querySelector("#emailField");
+			var emailInput = emailField.querySelector("input");
+			if(show) {
+				emailField.classList.remove("hidden");
+			} else {
+				emailField.classList.add("hidden");
+			}
+			emailInput.required = show;
+		}
+	}
+});
+</script>

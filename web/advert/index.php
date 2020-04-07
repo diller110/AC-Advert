@@ -1,36 +1,49 @@
 <?php
 $f3=require('lib/base.php');
-ini_set('always_populate_raw_post_data','-1');
-//error_reporting(E_ALL);
 $f3->config('app/config.ini');
+$f3->set('AUTOLOAD', "app/");
+$f3->set('CACHE', TRUE);
 $f3->set('db', new DB());
+$f3->set('skey', 'SESSION.ac2.'); // SESSION namespace
+$f3->set('user', new User());
+$f3->set('V.scriptExecutionTime', microtime(true));
+//$f3->set('ONERROR', 'Main->onError');
+\Template::instance()->filter('encode','\Main::filterEncode');
+
 $f3->set('PREFIX', 'T.');
 $f3->set('LOCALES','view/lang/');
 $f3->set('LANGUAGE', $f3->exists('lang')?$f3->get('lang'):'ru');
 
+/* ROUTES */
 $f3->route('GET @main: /','Main->index');
 $f3->route('GET @words: /words','Main->words');
-$f3->route('GET @ads: /ads','Main->ads');
-$f3->route('GET|POST @login: /login', 'Main->login');
+$f3->route('GET @ads: /dot','Main->ads');
+$f3->route('GET @login: /login', 'Main->login');
+$f3->route('POST /api/login', 'User->loginPost');
+$f3->route('GET /logout', 'Main->logout');
+$f3->route('GET /offer', 'Main->offer');
 
-$f3->route('GET /ex/rcon/@id', 'Ex->rcon');
-$f3->route('GET /ex/server/@id','Ex->server');
-$f3->route('POST /ex/server','Ex->serverPost');
-$f3->route('GET /ex/server/@id/delete','Ex->serverDelete');
-$f3->route('GET /ex/words/@id','Ex->words');
-$f3->route('POST /ex/words','Ex->wordsPost');
-$f3->route('GET /ex/words/@id/delete','Ex->wordsDelete');
-$f3->route('GET /ex/ads/@id','Ex->ads');
-$f3->route('POST /ex/ads','Ex->adsPost');
-$f3->route('GET /ex/ads/@id/delete','Ex->adsDelete');
+$f3->route('GET /api/server/get', 'Server->getList');
+$f3->route('GET /api/server/delete/@srv_id', 'Server->delete');
+$f3->route('POST /api/server/save', 'Server->save');
+$f3->route('POST /api/server/save/field', 'Server->saveField');
+$f3->route('GET /api/server/update/@srv_id', 'Server->update');
 
+$f3->route('GET /api/words/get', 'Words->getList');
+$f3->route('GET /api/words/delete/@word_id', 'Words->delete');
+$f3->route('POST /api/words/save', 'Words->save');
+$f3->route('POST /api/words/save/field', 'Words->saveField');
 
-$f3->route('GET|POST /app', function($f3) {
-	$f3->reroute('@main');
-});
-$f3->route('GET|POST /app/*', function($f3) {
-	$f3->reroute('@main');
-});
+$f3->route('GET /api/dot/get', 'Ads->getList');
+$f3->route('GET /api/dot/delete/@adv_id', 'Ads->delete');
+$f3->route('POST /api/dot/save', 'Ads->save');
+
+$f3->route('GET /api/test', 'Api->test');
+$f3->route('GET /api/auth', 'Api->auth');
+$f3->route('GET /api/get', 'Api->get');
+
+$f3->route('GET|POST /app', function($f3) { $f3->reroute('@main'); });
+$f3->route('GET|POST /app/*', function($f3) { $f3->reroute('@main'); });
 $f3->route('GET /css/@file', function($f3) {
 	header('Content-Type: text/css');
 	echo $f3->read($f3->get('UI').'css/'.$f3->get('PARAMS.file'));

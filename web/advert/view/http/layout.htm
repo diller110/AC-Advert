@@ -1,45 +1,152 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>{{@T.head_title}}</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css?family=Scada:400,700&amp;subset=cyrillic-ext" rel="stylesheet">
-        <repeat group="{{ @styles }}" key={{@key}} value="{{@style}}">
-            <link rel="stylesheet" type="text/css" href="{{@BASE}}/css/{{@style}}<check if="{{ !strpos(@style, '.css')}}">.css</check>">
-        </repeat>
+		<title>AC:Advert v2</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="{{@BASE}}/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+		<link href="{{@BASE}}/favicon.ico" rel="icon" type="image/x-icon" />
+		<link rel="icon" type="image/png" sizes="192x192"  href="{{@BASE}}/img/android-icon-192x192.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="{{@BASE}}/img/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="96x96" href="{{@BASE}}/img/favicon-96x96.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="{{@BASE}}/img/favicon-16x16.png">
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Scada:400,700&amp;subset=cyrillic-ext" rel="stylesheet">
+		<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
+      <script crossorigin src="https://unpkg.com/axios/dist/axios.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+		<!--<link crossorigin href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">-->
+		<link href="{{@BASE}}/css/styles.css" rel="stylesheet">
     </head>
-    <body>
-      <header class="columns <check if="{{@@V.wider}}"><true>col-10</true><false>col-6</false></check> col-md-11 col-mx-auto">
-        <a class="logo" href="{{@BASE}}/">{{@T.logo_title}}</a>
-        <a class="primary col-ml-auto text-bold" href="//hlmod.ru/resources/ac-advert-reklamnye-soobschenija.1237/"><span style="color:#ffd9d9;">HL</span><span style="color: #cceaff;">MOD</span></a>
-      </header>
-      <main class="columns <check if="{{@@V.wider}}"><true>col-10</true><false>col-6</false></check> col-md-11 col-mx-auto">
-        <nav class="col-12 columns col-gapless">
-          <div class="" style="display: flex; flex-direction: row; margin: 0;">
-            <a class="item <check if="{{@@V.page=='servers'}}">active</check>" href="{{@BASE}}/">{{@T.servers}}</a>
-            <a class="item <check if="{{@@V.page=='words'}}">active</check>" href="{{@BASE}}/words">{{@T.magic_words}}</a>
-            <a class="item <check if="{{@@V.page=='ads'}}">active</check>" href="{{@BASE}}/ads">{{@T.ads}}</a>
-          </div>
-          <div class="column"></div>
-          <div class="search">
-            <input type="text" id="in_filter" value="" placeholder="{{@T.search}}...">
-            <i class="material-icons">search</i>
-          </div>
-          <check if="{{@@V.button}}">
-            <a class="secondary" href="{{@@V.button.href}}">{{@@V.button.text}}</a>
-          </check>
-        </nav>
-        <section class="col-12">
-          <check if="{{ @@content }}">
+    <body class="bg-gray-200">
+		 <!-- Flash messages -->
+		 <style>
+		   .vue_flash {
+			   transition: all 0.7s;
+			   opacity: 0.75;
+		   }
+		   .vue_flash-leave-active {
+			   left: 40px;
+			   opacity: 0;
+		   }
+		   .vue_flash-enter-active {
+			   left: 0px;
+		   }
+		   .vue_flash-enter {
+			   left: -40px;
+			   opacity: 0;
+		   }
+		 </style>
+		 <div id="vueFlash" class="flex  fixed z-30 left-0 top-0 justify-center w-full pointer-events-none mt-3">
+			 <transition-group name="vue_flash">
+				 <div v-for="flash in flashes" v-bind:key="flash.id" v-bind:class="[flash.warning?'bg-red-500':'bg-green-500']" v-html="flash.text" class="relative vue_flash z-20 bg-red-500 rounded shadow-xl p-2 text-white font-bold mt-3" style="min-width: 250px;">
+					[[flash.text]]
+				 </div>
+			 </transition>
+		 </div>
+		 <script>
+		   var vueFlash = new Vue({
+			   el: '#vueFlash',
+			   data: {
+						count: 0,
+						flashes: [],
+			   },
+			   methods: {
+						flash: function(warning, text) {
+							var flash = {
+								id: ++this.count,
+								warning: warning,
+								text: text,
+							};
+							this.flashes.push(flash);
+							var this2 = this;
+							setTimeout(function() { // -3 часа жизни пожалуйста.
+								if(flash == undefined) return;
+								this2.$delete(this2.flashes, this2.flashes.indexOf(flash));
+							}, 2500);
+						}
+			   },
+			   delimiters: ['[[' , ']]'],
+				mounted: function() {
+					this.flash(false, 'Внимание: Сервис находится в стадии разработки!');
+				},
+		   });
+		 </script>
+		 <div class="mt-8 lg:px-24 container mx-auto h-16">
+			 <div class="w-full flex flex-wrap justify-between items-center px-4 md:px-0">
+				<a href="{{@BASE}}/">
+				 	<div class="font-medium text-gray-800 text-2xl">
+				 		Рекламные сообщения
+				 	</div>
+				</a>
+				<div class="flex">
+					<a href="https://hlmod.ru/threads/49238/" target="_blank">
+						<div class="font-bold bg-gray-300 hover:bg-white shadow-inner rounded text-blue-600 px-3 flex items-center h-8 mr-3">
+							<span class="text-red-600">HL</span>MOD
+						</div>
+					</a>
+					<a href="https://github.com/diller110/AC-Advert" target="_blank">
+						<div class="font-bold bg-gray-300 hover:bg-white shadow-inner rounded text-gray-700 px-3 flex items-center h-8 mr-3">
+							GITHUB
+						</div>
+					</a>
+					<check if="{{@user->isLogged()}}">
+						<a href="{{@BASE}}/logout">
+							<div class="font-bold bg-gray-300 hover:bg-white shadow-inner rounded text-gray-700 px-3 flex items-center h-8 tooltip" data-tooltip="Пойти по своим делам">
+								<i class="material-icons text-gray-500">emoji_nature</i>
+							</div>
+						</a>
+					</check>
+				</div>
+			 </div>
+			 <check if="{{@user->isLogged()}}">
+				 <div class="px-4 md:px-0 text-gray-700">
+				 	Логин: {{ @user->data['login']}} | Токен: {{ $user->data['token'] }}
+				 </div>
+			 </check>
+			 <div class="relative mt-4 flex flex-wrap-reverse justify-between text-white">
+				 <div class="flex flex-row">
+					<a href="{{@BASE}}/">
+					 <div class="font-medium bg-gray-500 rounded px-3 flex items-center h-8 mr-3 {{@V.ifeq('V.curPage', 'servers', 'tab-active')}}">
+					 	Сервера
+					 </div>
+					</a>
+					<a href="{{@BASE}}/words">
+						<div class="font-medium bg-gray-500 text-center leading-none rounded px-3 flex items-center h-8 mr-3 {{@V.ifeq('V.curPage', 'words', 'tab-active')}}">
+							Магические фразы
+						</div>
+					</a>
+					<a href="{{@BASE}}/dot">
+	  					<div class="font-medium bg-gray-500 rounded px-3 flex items-center h-8 {{@V.ifeq('V.curPage', 'ads', 'tab-active')}}">
+							Реклама
+						</div>
+					</a>
+				 </div>
+				 <div class="flex flex-row mb-3 md:mb-0">
+					 <check if="{{@V.newButton}}">
+						 <div class="relative rounded p-0 bg-white h-8 shadow mr-3 flex items-center">
+						 	<input class="z-10 h-full bg-transparent text-gray-800 rounded p-2" type="text" id="filterInput" name="" placeholder="Поиск..." value="" oninput="vueInst.filterInput(event)">
+							<i class="absolute right-0 mr-2 material-icons text-gray-400">search</i>
+						 </div>
+	   				<div class="cursor-pointer font-medium bg-green-500 hover:bg-green-300 text-center leading-none rounded px-3 flex items-center" style="min-height: 2rem;" onclick="vueInst.newButton()">
+	 						{{@V.newButton}}
+	 					</div>
+					 </check>
+				 </div>
+			 </div>
+			 <check if="{{ @@content }}">
               <true><include href="{{ @content }}" /></true>
-              <false><include href="cell/servers.htm" /></false>
+              <false><include href="cell/login.htm" /></false>
           </check>
-        </section>
-        <footer class="my-2 p-centered">
-          <a href="https://github.com/diller110/AC-Advert">AC:Advert v1.1a</a>
-        </footer>
-      </main>
-      <script src="{{@BASE}}/js/scripts.js"></script>
+			 <div class="flex justify-between my-2 text-gray-400">
+			    <div class="">
+			 	  AC:Advert v2 | Script time: {{number_format((microtime(true) - @@V.scriptExecutionTime)*1000, 1)}}ms
+			    </div>
+			    <div class="">
+					 <a href="{{@BASE}}/offer">
+						 Условия использования
+					 </a>
+			    </div>
+			 </div>
+		 </div>
     </body>
 </html>

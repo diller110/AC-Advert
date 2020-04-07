@@ -1,174 +1,613 @@
-<h5 class="m-2 p-2">{{@T.ads}}:<span>{{@T.total}}: {{count(@@ads)}}</span></h5>
-<div class="" style="overflow-x: scroll;">
-  <table class="table table-striped table-hover text-center">
-    <thead>
-      <tr>
-        <th>{{@T.active}}</th>
-        <th class="text-left" style="max-width: 15%;">{{@T.servers}}</th>
-        <th>{{@T.type}}</th>
-        <th class="text-left">{{@T.text}}</th>
-        <th>{{@T.vip}}</th>
-        <th>{{@T.order}}</th>
-        <th style="white-space: nowrap;">{{@T.day_of_week}}</th>
-        <th class="text-right" style="white-space: nowrap;">{{@T.hours}}</th>
-        <th>{{@T.action}}</th>
-      </tr>
-    </thead>
-    <tbody id="items_list">
-      <repeat group="{{@@ads}}" value="{{@adv}}">
-        <tr <check if="{{@adv.show==0}}">style="background: #dfdfdf;"</check>>
-          <td><a><i class="material-icons secondary-text"><check if="{{@adv.show}}"><true>visibility</true><false>visibility_off</false></check></i></a></td>
-          <td class="text-left" style="font-size: 10px; width: 15%;">
-            <repeat group="{{@@adv.servers}}" value="{{@server}}">{{@server.title}} </repeat>
-          </td>
-          <td>{{ @adv.msg_type }}</td>
-          <td class="text-left colorize" style="vertical-align:middle;">{{ @adv.msg_text|raw }}</td>
-          <td>{{ @adv.is_vip }}</td>
-          <td>{{ @adv.order }}</td>
-          <td>{{ @adv.day_of_week }}</td>
-          <td class="text-right">{{ @adv.hours }}</td>
-          <td class="" style="white-space: nowrap;">
-            <a class="tooltip" data-tooltip="{{@T.edit}}" id="{{@adv.adv_id}}" href="#btn_edit"><i id="{{@adv.adv_id}}" class="material-icons">edit</i></a>
-            <a class="tooltip" data-tooltip="{{@T.delete}}" id="{{@adv.adv_id}}" href="{{@BASE}}/ex/ads/{{@adv.adv_id}}/delete"><i class="material-icons">delete_forever</i></a>
-          </td>
-        </tr>
-      </repeat>
-    </tbody>
-  </table>
-</div>
-<div class="modal2">
-  <a class="modal2-close"></a>
-  <section class="col-6 col-md-11">
-    <header>
-      <span id="title" lang1="{{@T.add_ads}}" lang2="{{@T.edit_ads}}">{{@T.add_ads}}:</span>
-      <a href="#close"><i class="material-icons">close</i></a>
-    </header>
-    <main style="overflow-y: scroll;">
-      <form class="form-horizontal" action="{{@BASE}}/ex/ads" method="post">
-        <input type="hidden" id="in_ads_id" name="adv_id" value="">
-        <div class="form-group">
-          <div class="col-3 col-sm-12">
-            <label class="form-label">{{@T.servers}}:</label>
-          </div>
-          <div class="col-9 col-sm-12">
-            <label class="form-switch">
-              <input class="f-input" type="checkbox" id="in_show" name="show"><i class="form-icon"></i>{{@T.active}}
-            </label>
-            <select class="form-select select-sm f-input" id="in_srv_id" required multiple name="srv_id[]" value="-1">
-              <repeat group="{{@@servers}}" value="{{@server}}">
-                <option value="{{@server.srv_id}}">{{@server.title}}</option>
-              </repeat>
-            </select>
-          </div>
+<div id="vueEl" class="mt-3 rounded-b rounded-tr bg-white font-thin text-gray-800">
+   <div class="flex justify-between items-center mx-4 p-1">
+	  <div class="text-xl">
+		  Реклама:
+	  </div>
+	  <div class="">
+		  Всего: [[total]]
+	  </div>
+   </div>
+   <div v-if="objs && servers" class="overflow-x-scroll">
+		<div v-if="haveChanges" class="leading-none cursor-pointer font-medium bg-red-400 text-white rounded text-center px-1 flex justify-center items-center h-8 mx-3" v-on:click="saveChanges">
+		  <i class="material-icons mr-2">save</i>
+		  Имеются несохранённые данные! Сохранить?
+		</div>
+		<table class="w-full text-center border-b border-gray-200">
+		  <tr class="border-b-2">
+			  <td class="w-3">
+				  <i class="material-icons text-gray-600 align-middle">bar_chart</i>
+			  </td>
+			  <td class="py-2">Активн.</td>
+			  <td class="">Сервера</td>
+			  <td class="">Тип</td>
+			  <td class="">Текст</td>
+			  <td class="w-2">Вип</td>
+			  <td class="">Дни</td>
+			  <td class="">Часы</td>
+			  <td class="text-center">Действие</td>
+		  </tr>
+		  <tr is="tablerow"
+			  	v-for="obj in objsFiltered"
+			  	v-bind:key="obj.adv_id"
+			  	v-bind:obj="obj"
+			  	v-on:deleteconfirm="deleteconfirm(obj, typeStr)"
+			  	v-on:edit="edit(obj)">
+		  </tr>
+		</table>
+	  <br>
+   </div>
+	<div v-else class="mt-0 m-4 text-center text-2xl text-gray-500 pb-6">
+		<i class="material-icons" style="font-size: 100px;">highlight_off</i><br>
+		Кажется у вас еще нет рекламы...
+	</div>
+	<!--
 
-        </div>
-        <div class="form-group">
-          <div class="col-3 col-sm-12">
-            <label class="form-label">{{@T.type}}:</label>
-          </div>
-          <select class="col-9 col-sm-12 form-select select-sm f-input" id="in_msg_type" name="msg_type"  required>
-            <option value="1">{{@T.chat}}</option>
-            <option value="2">HUD</option>
-          </select>
-        </div>
-        <div class="form-group" id="group_hud" style="display:none;">
-          <div class="col-3 col-sm-12">
-            <label class="form-label">{{@T.hud_style}}:</label>
-          </div>
-          <div class="col-9 col-sm-12">
-            <label class="form-label label-sm col-9" >Color1:</label>
-            <input class="form-input input-sm f-input" type="text" id="in_hud_color1" name="hud[color1]" placeholder="255 255 255 255" value="255 255 255 255">
-            <label class="form-label label-sm col-9" >Color2:</label>
-            <input class="form-input input-sm f-input" type="text" id="in_hud_color2" name="hud[color2]" placeholder="255 255 255 255" value="255 255 255 255">
-            <label class="form-label label-sm">Effect:</label>
-            <input class="form-input input-sm f-input" type="number" id="in_hud_effect" name="hud[effect]" placeholder="0" min=0 step=1 value="0">
-            <label class="form-label label-sm">Fadein:</label>
-            <input class="form-input input-sm f-input" type="number" id="in_hud_fadein" name="hud[fadein]" placeholder="0.1" min=0.0 step=0.1 value="0.1">
-            <label class="form-label label-sm">Fadeout:</label>
-            <input class="form-input input-sm f-input" type="number" id="in_hud_fadeout" name="hud[fadeout]" placeholder="0.1" min=0.0 step=0.1 value="0.1">
-            <label class="form-label label-sm">Holdtime:</label>
-            <input class="form-input input-sm f-input" type="number" id="in_hud_holdtime" name="hud[holdtime]" placeholder="0.1" min=0.0 step=0.1 value="0.1">
-            <label class="form-label label-sm">Fxtime:</label>
-            <input class="form-input input-sm f-input" type="number" id="in_hud_fxtime" name="hud[fxtime]" placeholder="0.1" min=0.0 step=0.1 value="0.1">
-            <label class="form-label label-sm">X:</label>
-            <input class="form-input input-sm f-input" type="number" id="in_hud_x" name="hud[x]" placeholder="0.1" min=0.0 max=1.0 step=0.01 value="0.1">
-            <label class="form-label label-sm">Y:</label>
-            <input class="form-input input-sm f-input" type="number" id="in_hud_y" name="hud[y]" placeholder="0.1" min=0.0 max=1.0 step=0.01 value="0.1">
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="col-3 col-sm-12">
-            <label class="form-label">{{@T.format_tips}}:</label>
-          </div>
-          <div class="col-9 col-sm-12 form-group">
-            <div class="popover popover-bottom">
-              <a class="btn btn-sm primary">{{@T.chat_colors}}</a>
-              <div class="popover-container card" style="top:65%;">
-                <img style="display:block;" src="{{@BASE}}/img/clrs6.png">
-              </div>
-            </div>
-            <div class="popover popover-bottom px-2">
-              <a class="btn btn-sm primary">{{@T.servers}}</a>
-              <div class="popover-container card" style="top:65%;">
-                {/time}, {/date}, {/addr}, {/port},
-                {/hostname}, {/hostname_db}, {/slots}, {/players}, {/map}, {/nextmap}, {/tickrate}, {/timeleft}
-              </div>
-            </div>
-            <div class="popover popover-bottom">
-              <a class="btn btn-sm primary">{{@T.player}}</a>
-              <div class="popover-container card" style="top:65%;">
-                {\nick}, {\steamid}, {\steamid64}, {\vipGroup}, {\vipTime}
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="col-3 col-sm-12">
-            <label class="form-label">{{@T.text}}:</label>
-          </div>
-          <div class="col-9 col-sm-12 form-group">
-            <textarea class="form-input f-input" id="in_msg_text" name="msg_text" required placeholder="Введите текст..." rows="3"></textarea>
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="col-3 col-sm-12">
-            <label class="form-label">{{@T.time_limits}}:</label>
-          </div>
-          <div class="col-9 col-sm-12 form-group">
-            <label class="form-label label-sm">{{@T.date_from}}:</label>
-            <input class="form-input input-sm f-input" type="date" id="in_date_from" name="date_from" value="">
-            <label class="form-label label-sm">{{@T.date_to}}:</label>
-            <input class="form-input input-sm f-input" type="date" id="in_date_to" name="date_to" value="">
-            <label class="form-label label-sm">{{@T.hours}} ("0-6;10-24;"):</label>
-            <input class="form-input input-sm f-input" type="text" id="in_hours" name="hours" id="in_value" placeholder="Значение" value="0-24;">
-            <label class="form-label label-sm">{{@T.day_of_week}} ("1-7;"):</label>
-            <input class="form-input input-sm f-input" type="text" id="in_day_of_week" name="day_of_week" id="in_value" placeholder="Значение" value="0-7;">
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="col-3 col-sm-12">
-            <label class="form-label">{{@T.targeting}}:<br>({{@T.not_implemented}})</label>
-          </div>
-          <div class="col-9 col-sm-12 form-group">
-            <label class="form-label col-9 label-sm" >{{@T.vip}}:</label>
-            <select class="col-9 col-sm-12 form-select select-sm f-input" id="in_is_vip" name="is_vip" value="0">
-              <option value="-1">Not vip</option>
-              <option value="0">Any</option>
-              <option value="1">Only vip</option>
-            </select>
-            <label class="form-label label-sm col-6" >{{@T.admin_flags}}:</label>
-            <input class="form-input input-sm f-input" type="text" id="in_admin_flags" name="admin_flags" id="in_value" placeholder="..." value="">
-            <label class="form-label label-sm" >{{@T.views}}:</label>
-            <input class="form-input input-sm f-input" type="number" id="in_views" name="views" placeholder="-1" value="-1" min=-1>
-            <label class="form-label label-sm" >{{@T.order2}}:</label>
-            <input class="form-input input-sm f-input" type="number" id="in_order" name="order" placeholder="1000" value="1000" min=1 max=1000>
-          </div>
-        </div>
-    </main>
-    <footer>
-      <button class="primary mx-2" type="submit" lang1="{{@T.add}}" lang2="{{@T.edit}}">{{@T.add}}</button>
-      <a class="cancel" href="#close">{{@T.close}}</a>
-      </form>
-    </footer>
-  </section>
+	-->
+	<div id="popup" class="invisible z-10 fixed top-0 left-0 w-full h-full bg-red-400 flex items-center justify-center align-middle text-gray-700" style="background: rgba(141,162,182, 0.5);">
+		<div class="fixed top-0 left-0 w-full h-full" v-on:click="hidePopup"></div>
+	   <div class="z-10 flex flex-col w-full mx-4  md:w-1/2" style=" min-width: 350px; min-height: 200px; max-height: 95%;">
+		  <div class="text-xl p-2 px-3 text-gray-300 bg-gray-700 rounded-t-lg flex justify-between items-center">
+			  <span>[[isEdit?'Изменить':'Добавить']] рекламу:</span>
+			  <i class="material-icons cursor-pointer" v-on:click="hidePopup">close</i>
+		  </div>
+		  <div class="bg-white p-3 flex flex-col overflow-y-auto">
+			  <input type="hidden" name="adv_id" v-model="popup_obj.adv_id">
+			  <div class="flex flex-wrap  mb-2">
+			  	<div class="w-full md:w-1/4">Сервера:</div>
+				<div class="w-full md:w-3/4">
+					<label class="form-switch">
+					  <input v-model="popup_obj.show" type="checkbox"><i class="form-icon"></i> Активный
+					</label>
+					<select class="gr-input w-full" style="height: 6rem;" required multiple v-model="popup_obj.servers">
+						<option v-for="server in servers" v-bind:value="server.srv_id">
+							[[server.title]]
+						</option>
+					</select>
+				</div>
+			  </div>
+			  <div class="flex flex-wrap mb-2">
+				  <div class="w-full md:w-1/4">Тип:</div>
+  					<div class="w-full md:w-3/4 flex">
+						<select class="gr-input w-full" required v-model="popup_obj.msg_type">
+							<option value="0">Чат</option>
+							<option value="1">HUD</option>
+							<option value="2">Hint</option>
+							<option value="3">Меню</option>
+						</select>
+						<div v-if="popup_obj.msg_type==1" class="cursor-pointer ml-3 leading-none font-medium text-white bg-green-500 hover:bg-green-300 text-center rounded px-3 flex items-center h-8 " v-on:click="showHud">
+		 				  Настройть HUD
+		 			  	</div>
+					</div>
+			  </div>
+			  <div class="flex flex-wrap mb-2">
+				  <div class="w-full md:w-1/4">Магические значения:</div>
+  					<div class="w-full md:w-3/4 flex-col">
+						<div class="flex flex-wrap items-start justify-evenly chips2">
+						 <span style="color: #000000; box-shadow: inset 0 0 2px 1px #d7d6d6;" v-on:click="magicClick($event)">{\01}</span>
+						 <span style="color: #ff0000; box-shadow: inset 0 0 2px 1px #ff0000;" v-on:click="magicClick($event)">{\02}</span>
+						 <span style="color: #ba81f0; box-shadow: inset 0 0 2px 1px #ba81f0;" v-on:click="magicClick($event)">{\03}</span>
+						 <span style="color: #40ff40; box-shadow: inset 0 0 2px 1px #40ff40;" v-on:click="magicClick($event)">{\04}</span>
+						 <span style="color: #bfff90; box-shadow: inset 0 0 2px 1px #bfff90;" v-on:click="magicClick($event)">{\05}</span>
+						 <span style="color: #a2ff47; box-shadow: inset 0 0 2px 1px #a2ff47;" v-on:click="magicClick($event)">{\06}</span>
+						 <span style="color: #ff4040; box-shadow: inset 0 0 2px 1px #ff4040;" v-on:click="magicClick($event)">{\07}</span>
+						 <span style="color: #c5cad0; box-shadow: inset 0 0 2px 1px #c5cad0;" v-on:click="magicClick($event)">{\08}</span>
+						 <span style="color: #ede47a; box-shadow: inset 0 0 2px 1px #ede47a;" v-on:click="magicClick($event)">{\09}</span>
+						 <span style="color: #b0c3d9; box-shadow: inset 0 0 2px 1px #b0c3d9;" v-on:click="magicClick($event)">{\10}</span>
+						 <span style="color: #5e98d9; box-shadow: inset 0 0 2px 1px #5e98d9;" v-on:click="magicClick($event)">{\11}</span>
+						 <span style="color: #4b69ff; box-shadow: inset 0 0 2px 1px #4b69ff;" v-on:click="magicClick($event)">{\12}</span>
+						 <span style="color: #b0c3d9; box-shadow: inset 0 0 2px 1px #b0c3d9;" v-on:click="magicClick($event)">{\13}</span>
+						 <span style="color: #d32ce6; box-shadow: inset 0 0 2px 1px #d32ce6;" v-on:click="magicClick($event)">{\14}</span>
+						 <span style="color: #eb4b4b; box-shadow: inset 0 0 2px 1px #eb4b4b;" v-on:click="magicClick($event)">{\15}</span>
+						 <span style="color: #e4ae39; box-shadow: inset 0 0 2px 1px #e4ae39;" v-on:click="magicClick($event)">{\16}</span>
+					  	 <span class="bg-gray-500" v-on:click="magicClick($event)">{/time}</span>
+					  	 <span class="bg-gray-500" v-on:click="magicClick($event)">{/date}</span>
+					  	 <span class="bg-gray-500" v-on:click="magicClick($event)">{/addr}</span>
+					  	 <span class="bg-gray-500" v-on:click="magicClick($event)">{/port}</span>
+					  	 <span class="bg-gray-500" v-on:click="magicClick($event)">{/hostname}</span>
+					  	 <span class="bg-gray-500" v-on:click="magicClick($event)">{/hostname_db}</span>
+					  	 <span class="bg-gray-500" v-on:click="magicClick($event)">{/slots}</span>
+					  	 <span class="bg-gray-500" v-on:click="magicClick($event)">{/players}</span>
+					  	 <span class="bg-gray-500" v-on:click="magicClick($event)">{/map}</span>
+					  	 <span class="bg-gray-500" v-on:click="magicClick($event)">{/nextmap}</span>
+					  	 <span class="bg-gray-500" v-on:click="magicClick($event)">{/timeleft}</span>
+					  	 <span class="bg-gray-500" v-on:click="magicClick($event)">{/tickrate}</span>
+					  	 <span class="bg-teal-400" v-on:click="magicClick($event)">{\nick}</span>
+					  	 <span class="bg-teal-400" v-on:click="magicClick($event)">{\steamid}</span>
+					  	 <span class="bg-teal-400" v-on:click="magicClick($event)">{\steamid64}</span>
+					  	 <span class="bg-teal-400" v-on:click="magicClick($event)">{\vipGroup}</span>
+					  	 <span class="bg-teal-400" v-on:click="magicClick($event)">{\vipTime}</span>
+					   </div>
+					</div>
+			  </div>
+			  <div class="flex flex-wrap mb-2">
+				  <div class="w-full md:w-1/4 relative text-hint">Текст:<br>
+					  <i class="material-icons mr-2 rounded bg-gray-400 hover:bg-green-300 shadow-inner p-1">format_paint</i>
+					  <div class="absolute top-0 colorize rounded hidden" v-html="colorizedStr" style="left: 3rem; min-height: 5rem;">
+					  </div>
+				  </div>
+  					<div class="w-full md:w-3/4">
+						<textarea ref="textInput" class="gr-input w-full h-auto" v-model="popup_obj.msg_text" style="min-height: 5rem;" required placeholder="Введите текст..." rows="3"></textarea>
+					</div>
+			  </div>
+			  <div class="flex flex-wrap mb-2">
+				  <div class="w-full md:w-1/4 relative text-hint">Консольная команда:</div>
+  					<div class="w-full md:w-3/4">
+						<input class="gr-input w-full mb-2" type="text" v-model="popup_obj.cmd" placeholder='sm_vip_give "@alive" "Pro" "3600"'>
+					</div>
+			  </div>
+			  <div class="flex flex-wrap mb-2">
+				  <div class="w-full md:w-1/4">Временные огранения:</div>
+  					<div class="w-full md:w-3/4">
+						<label class="mr-2">Дата от:</label>
+		            <input class="gr-input mb-2" v-model="popup_obj.date_from" type="datetime-local"><br>
+		            <label class="mr-2">Дата до:</label>
+		            <input class="gr-input" v-model="_date_to" type="datetime-local"><br>
+						<span class="text-xs">Обязательно указывайте час и минуту!</span><br>
+						<label class="mr-2">День недели:</label>
+						<div class="w-full chips text-sm mb-2">
+							 <span class="cursor-pointer" v-bind:class="[[dayActive(1)?'bg-gray-600':'bg-gray-400']]" v-on:click="dayClick(1)">Пн</span>
+				  			 <span class="cursor-pointer" v-bind:class="[[dayActive(2)?'bg-gray-600':'bg-gray-400']]" v-on:click="dayClick(2)">Вт</span>
+				  			 <span class="cursor-pointer" v-bind:class="[[dayActive(3)?'bg-gray-600':'bg-gray-400']]" v-on:click="dayClick(3)">Ср</span>
+				  			 <span class="cursor-pointer" v-bind:class="[[dayActive(4)?'bg-gray-600':'bg-gray-400']]" v-on:click="dayClick(4)">Чт</span>
+				  			 <span class="cursor-pointer" v-bind:class="[[dayActive(5)?'bg-gray-600':'bg-gray-400']]" v-on:click="dayClick(5)">Пт</span>
+				  			 <span class="cursor-pointer" v-bind:class="[[dayActive(6)?'bg-gray-600':'bg-gray-400']]" v-on:click="dayClick(6)">Сб</span>
+				  			 <span class="cursor-pointer" v-bind:class="[[dayActive(7)?'bg-gray-600':'bg-gray-400']]" v-on:click="dayClick(7)">Вс</span>
+						</div>
+		            <label class="mr-4">Часы:</label>
+		            <input class="gr-input mb-2" type="text" placeholder="0-2;21-23; или 21;22;23;0;1;2;" v-model="popup_obj.hours"><br>
+					</div>
+			  </div>
+			  <div class="flex flex-wrap mb-2">
+				  <div class="w-full md:w-1/4">Таргетинговые ограничения:</div>
+  					<div class="w-full md:w-3/4">
+						<label class="mr-2">Вип:</label>
+						<select class="gr-input w-full mb-2" v-model="popup_obj.is_vip" required>
+							<option value="0">Не важно</option>
+							<option value="1">Только випам</option>
+							<option value="-1">Только НЕ випам</option>
+						</select>
+						<label class="mr-2" >Админ:</label>
+		            <input class="gr-input w-full mb-2" type="text" v-model="popup_obj.admin_flags" placeholder="a:10 или a или :10 (a - флаг, 10 - мин. приоритет)"><br>
+						<label class="mr-2">Приоритет (Меньше = Раньше):</label>
+		            <input class="gr-input w-full mb-2" type="number" placeholder="1000" v-model="popup_obj.order" min="1" max="1000"><br>
+					</div>
+			  </div>
+		  </div>
+		  <div class="rounded-b-lg bg-white flex justify-end p-3 pt-2">
+			  <div class="cursor-pointer mr-3 font-medium text-white bg-green-500 hover:bg-green-300 text-center rounded px-3 flex items-center h-8 " v-on:click="addObject">
+				  [[isEdit?'Изменить':'Добавить']]
+			  </div>
+			  <div class="cursor-pointer  text-center px-3 flex items-center h-8" v-on:click="hidePopup">Закрыть</div>
+		  </div>
+	   </div>
+		<div id="hudPopup" class="invisible z-10 fixed top-0 left-0 w-full h-full bg-red-400 flex items-center justify-center align-middle text-gray-700" style="background: rgba(141,162,182, 0.5);">
+			<div class="fixed top-0 left-0 w-full h-full" v-on:click="hideHud"></div>
+		   <div class="z-10 flex flex-col w-full mx-4  md:w-1/2" style=" min-width: 350px; min-height: 200px; max-height: 95%;">
+			  <div class="text-xl p-2 px-3 text-gray-300 bg-gray-700 rounded-t-lg flex justify-between items-center">
+				  <span>Стиль HUD:</span>
+				  <i class="material-icons cursor-pointer" v-on:click="hideHud">close</i>
+			  </div>
+			  <div class="bg-white p-3 flex flex-col overflow-y-auto">
+				  <div  class="flex flex-wrap mb-2">
+					   <div class="w-full md:w-1/4 relative text-hint">Стиль HUD:</div>
+					   <div class="w-full md:w-3/4">
+						   <div class="inline-block">
+							   <label class="mr-2" >Color1:</label>
+							   <input class="gr-input mb-2" v-model="popup_obj.hud.color1" type="text" placeholder="255 255 255 255">
+						   </div>
+						   <div class="inline-block">
+								 <label class="mr-2" >Color2:</label>
+								 <input class="gr-input mb-2" v-model="popup_obj.hud.color2" type="text" placeholder="255 255 255 255">
+						   </div>
+						   <div class="inline-block">
+								 <label class="mr-2">Effect:</label>
+								 <input class="gr-input mb-2" v-model="popup_obj.hud.effect" type="number" placeholder="0" min=0 step=1>
+						   </div>
+						   <div class="inline-block">
+								 <label class="mr-2">Fadein:</label>
+								 <input class="gr-input mb-2" v-model="popup_obj.hud.fadein" type="number" placeholder="0.1" min=0.0 step=0.1>
+						   </div>
+						   <div class="inline-block">
+								 <label class="mr-2">Fadeout:</label>
+								 <input class="gr-input mb-2" v-model="popup_obj.hud.fadeout" type="number" placeholder="0.1" min=0.0 step=0.1>
+						   </div>
+						   <div class="inline-block">
+								 <label class="mr-2">Holdtime:</label>
+								 <input class="gr-input mb-2" v-model="popup_obj.hud.holdtime" type="number" placeholder="0.1" min=0.0 step=0.1>
+						   </div>
+						   <div class="inline-block">
+								 <label class="mr-2">Fxtime:</label>
+								 <input class="gr-input mb-2" v-model="popup_obj.hud.fxtime" type="number" placeholder="0.1" min=0.0 step=0.1>
+						   </div>
+						   <div class="inline-block">
+								 <label class="mr-2">X:</label>
+								 <input class="gr-input mb-2" v-model="popup_obj.hud.x" type="number" placeholder="0.1" min=0.0 max=1.0 step=0.01>
+						   </div>
+						   <div class="inline-block">
+								 <label class="mr-2">Y:</label>
+								 <input class="gr-input" v-model="popup_obj.hud.y" type="number" placeholder="0.1" min=0.0 max=1.0 step=0.01>
+						   </div>
+							<div class="">
+								Описание:<br>
+								<span class="font-bold">TODO</span><br>
+								<span class="text-sm">(Если бы кто-нибудь нашёл хорошую краткую шпаргалку по этим параметрам, было бы прекрасно)</span>
+							</div>
+						 </div>
+				  </div>
+			  </div>
+			  <div class="rounded-b-lg bg-white flex justify-end p-3 pt-2">
+				  <div class="cursor-pointer mr-3 font-medium text-white bg-green-500 hover:bg-green-300 text-center rounded px-3 flex items-center h-8 " v-on:click="hideHud">
+					  Закрыть
+				  </div>
+			  </div>
+		  </div>
+	  	</div>
+	</div>
 </div>
+<!--
+
+-->
+<template id="tablerow">
+	<tr style="" v-bind:class="[obj.show?'':'opacity-50']">
+		<td class="text-sm text-gray-500 select-none">
+			<i class="material-icons cursor-pointer select-none hover:bg-green-100 rounded-full" @click='obj.order--; haveChanges;'>arrow_drop_up</i><br>
+			[[obj.order]]<br>
+			<i class="material-icons cursor-pointer select-none hover:bg-green-100 rounded-full" @click='obj.order++; haveChanges;'>arrow_drop_down</i>
+		</td>
+		<td class="select-none">
+			<i class="material-icons text-gray-500 cursor-pointer hover:bg-green-100 rounded-full p-1" v-on:click="toggleShow()">[[obj.show?'visibility':'visibility_off']]</i>
+		</td>
+		<td class="w-24 text-xs select-none" style="font-size: 10px; min-width: 8rem;">[[serversStr]]</td>
+		<td class="w-4  select-none">[[typeStr]]</td>
+		<td class="colorize" v-html="colorizedStr" style=""></td>
+		 <td class=" select-none">[[obj.is_vip]]</td>
+		 <td class="w-16 chips select-none" style="font-size: 0px;">
+			 <span v-bind:class="[[dayActive(1)?'bg-gray-600':'bg-gray-400']]">Пн</span>
+			 <span v-bind:class="[[dayActive(2)?'bg-gray-600':'bg-gray-400']]">Вт</span>
+			 <span v-bind:class="[[dayActive(3)?'bg-gray-600':'bg-gray-400']]">Ср</span>
+			 <span v-bind:class="[[dayActive(4)?'bg-gray-600':'bg-gray-400']]">Чт</span>
+			 <span v-bind:class="[[dayActive(5)?'bg-gray-600':'bg-gray-400']]">Пт</span>
+			 <span v-bind:class="[[dayActive(6)?'bg-gray-600':'bg-gray-400']]">Сб</span>
+			 <span v-bind:class="[[dayActive(7)?'bg-gray-600':'bg-gray-400']]">Вс</span>
+		 </td>
+		 <td>[[obj.hours]]</td>
+		 <td class="text-green-300 text-center whitespace-no-wrap select-none">
+		  <span class="tooltip" data-tooltip="Изменить" v-on:click="$emit('edit', obj)">
+			  <i class="material-icons">edit</i>
+		  </span>
+		  <span class="tooltip" data-tooltip="Удалить" v-on:click="$emit('deleteconfirm', obj, this.typeStr)">
+			  <i class="material-icons">delete_forever</i>
+		  </span>
+	  </td>
+	</tr>
+</template>
+<!--
+
+-->
+<script>
+Vue.component('tablerow', {
+	data: function() {
+		return {
+			original: null
+		}
+	},
+	computed: {
+		haveChanges: function() {
+			delete this.obj.haveChanges;
+			if(!_.isEqual(this.obj, this.original)) {
+				this.$set(this.obj, 'haveChanges', true);
+				return true;
+			} else {
+				this.$set(this.obj, 'haveChanges', undefined);
+				return false;
+			}
+		},
+		typeStr: function() {
+			switch(String(this.obj.msg_type)) {
+				case '0': return 'Чат';
+				case '1': return 'HUD';
+				case '2': return 'Hint';
+				case '3': return 'Меню';
+			}
+		},
+		serversStr: function() {
+			var str = '';
+			for(server of this.obj.servers) {
+				str += this.$parent.servers[server].title+' ';
+			}
+			return str;
+		},
+		colorizedStr: function() {
+			return this.$parent.colorize(this.obj);
+		},
+	},
+	methods: {
+		toggleShow: function() {
+			this.obj.show= this.obj.show?0:1;
+			this.haveChanges;
+		},
+		dayActive(day) {
+			if(this.obj.day_of_week.indexOf(String(day)) != -1) return true;
+			return false;
+		},
+	},
+	props: [
+		'obj',
+	],
+	template: '#tablerow',
+	mounted: function() {
+		this.original = { ...this.obj};
+	},
+	delimiters: ['[[' , ']]']
+});
+var def_obj =  {
+	adv_id: -1,
+	msg_type: 0,
+	msg_text: '',
+	date_from: null,
+	date_to: null,
+	hours: '',
+	day_of_week: '1234567',
+	is_vip: 0,
+	admin_flags: '',
+	views: 0,
+	show: 1,
+	order: 500,
+	cmd: '',
+	servers: [],
+	hud: {
+		color1: '255 255 255 255',
+		color2: '255 255 255 255',
+		effect: 0,
+		fadein: 0.1,
+		fadeout: 0.1,
+		holdtime: 0.1,
+		fxtime: 0.1,
+		x: 0.1,
+		y: 0.1,
+	},
+};
+var vueInst = new Vue({
+	el: '#vueEl',
+	data: {
+		filterstr: '',
+		popup_obj: def_obj,
+		servers: null,
+		objs: null,
+		isEdit: false,
+		colorizedStr: ''
+	},
+	watch: {
+		'popup_obj.msg_text': function(newval) {
+			this.colorizedStr = this.colorize(this.popup_obj);
+		},
+		'popup_obj.msg_type': function() {
+			this.colorizedStr = this.colorize(this.popup_obj);
+		},
+		'popup_obj.hud.color1': function() {
+			this.colorizedStr = this.colorize(this.popup_obj);
+		}
+	},
+	computed: {
+		objsFiltered: function() {
+			var str = this.filterstr.toLowerCase();
+			var objs = {};
+			var i = 0;
+			for(obj of this.objs) {
+				if(str.length < 1) {
+					objs[i++] = obj;
+					continue;
+				}
+				if(String(obj.msg_text).toLowerCase().indexOf(str) == -1 && (this.serversStr(obj)).toLowerCase().indexOf(str) == -1) continue;
+				objs[i++] = obj;
+			}
+			return _.sortBy(objs, 'order', 'adv_id');
+		},
+		total: function() {
+			if(this.objs == null) return 0;
+			return this.objs.length;
+		},
+		haveChanges: function() {
+			if(this.objs == null) return false;
+			for(let i = 0; i<this.objs.length;i++) {
+				if(this.objs[i].haveChanges != undefined) return true;
+			}
+			return false;
+		},
+		_date_from: {
+			get: function() {
+				if(this.popup_obj.date_from == null) return null;
+				return this.popup_obj.date_from.replace(/ /g, 'T');
+			},
+			set: function(newval) {
+				this.popup_obj.date_from = newval.replace(/T/g, ' ');
+			}
+		},
+		_date_to: {
+			get: function() {
+				if(this.popup_obj.date_to == null) return null;
+				return this.popup_obj.date_to.replace(/ /g, 'T');
+			},
+			set: function(newval) {
+				this.popup_obj.date_to = newval.replace(/T/g, ' ');
+			}
+		},
+	},
+	methods: {
+		filterInput: function(event) {
+			this.filterstr = event.target.value;
+		},
+		addObject: function() {
+			if(this.popup_obj == null) return;
+			var this2 = this;
+			var reload = false;
+			//console.log(this2.popup_obj);
+			axios.post('{{@BASE}}/api/dot/save', {
+				data: this2.popup_obj,
+			}).then(function (response) {
+
+				if(response.data == null) {
+					console.log(response);
+					return;
+				}
+				if(response.data === 1) {
+					vueFlash.flash(false, 'Реклама '+(this2.isEdit?'изменёна':'добавлена'));
+					reload = true;
+				} else {
+					vueFlash.flash(true, 'Ошибка при '+(this2.isEdit?'изменёнении':'добавлении')+' рекламы');
+				}
+			}).then(() => {
+				if(!reload) return;
+				this2.$nextTick(function () {
+			    this2.getAds();
+				 this2.hidePopup();
+			 	});
+			})
+			.catch(error => {
+			    console.log(error.response)
+			});
+		},
+		deleteconfirm: function(obj, typeStr) {
+			var result = confirm('Вы уверены что хотите удалить рекламу:\n{'+typeStr+'} : '+obj.msg_text);
+			if(result) {
+				axios.get('{{@BASE}}/api/dot/delete/'+obj.adv_id).then(function (response) {
+					document.location.reload();
+				});
+			}
+		},
+		edit: function(obj) {
+			this.isEdit = true;
+			this.popup_obj = obj;
+			this.colorizedStr = this.colorize(this.popup_obj);
+			this.showPopup();
+		},
+		newButton: function() {
+			this.isEdit = false;
+			this.popup_obj = {...def_obj};
+			this.showPopup();
+		},
+		showPopup: function() {
+			document.querySelector("#popup").classList.remove("invisible");
+		},
+		hidePopup: function() {
+			document.querySelector("#popup").classList.add("invisible");
+		},
+		showHud: function() {
+			document.querySelector("#hudPopup").classList.remove("invisible");
+		},
+		hideHud: function() {
+			document.querySelector("#hudPopup").classList.add("invisible");
+		},
+		getAds: function() {
+			var this2 = this;
+			axios.get('{{@BASE}}/api/dot/get').then(function (response) {
+				if(response.data == null) {
+	 				console.log(response);
+					return;
+				}
+				if(response.data == 0) { // Рекламы у пользователя нет
+					this2.servers = null;
+					this2.objs = null;
+					return;
+				}
+				this2.servers = response.data.servers;
+				this2.objs = response.data.ads;
+			});
+		},
+		saveChanges: function() {
+			var this2 = this;
+			for(let i = 0; i<this2.objs.length;i++) {
+				if(this2.objs[i].haveChanges == undefined) continue;
+				axios.post('{{@BASE}}/api/dot/save', {
+					data: this2.objs[i],
+				}).then(function (response) {
+					if(response.data == null) {
+						console.log(response);
+						return;
+					}
+					vueFlash.flash(false, 'Список обновлён');
+				}).then(() => {
+					this2.$nextTick(function () {
+				    this2.getAds();
+					 this2.hidePopup();
+				 	});
+				});
+			}
+		},
+		dayActive(day) {
+			if(this.popup_obj.day_of_week.indexOf(String(day)) != -1) return true;
+			return false;
+		},
+		dayClick(day) {
+			if(this.popup_obj.day_of_week.indexOf(String(day)) != -1) this.popup_obj.day_of_week = this.popup_obj.day_of_week.replace(new RegExp(String(day), 'g'), '');
+			else this.popup_obj.day_of_week += String(day);
+		},
+		magicClick: function($event) {
+			$event.preventDefault();
+			var a = this.popup_obj.msg_text;
+			var pos = this.$refs.textInput.selectionStart;
+			this.popup_obj.msg_text = a.substring(0, pos) + $event.target.innerHTML + a.substring(pos); // И как только это работает....
+			this.$refs.textInput.focus();
+		},
+		serversStr: function(obj) {
+			var str = '';
+			for(server of obj.servers) {
+				str += this.servers[server].title+' ';
+			}
+			return str;
+		},
+		colorize: function(obj) {
+			var text = obj.msg_text;
+			switch(String(obj.msg_type)) {
+				case '0':
+					text = _.escape(text);
+					text = text.replace(/{\\01}/g, '<span style="color:#ffffff;">');
+					text = text.replace(/{\\02}/g, '<span style="color:#ff0000;">');
+					text = text.replace(/{\\03}/g, '<span style="color:#ba81f0;">');
+					text = text.replace(/{\\04}/g, '<span style="color:#40ff40;">');
+					text = text.replace(/{\\05}/g, '<span style="color:#bfff90;">');
+					text = text.replace(/{\\06}/g, '<span style="color:#a2ff47;">');
+					text = text.replace(/{\\07}/g, '<span style="color:#ff4040;">');
+					text = text.replace(/{\\08}/g, '<span style="color:#c5cad0;">');
+					text = text.replace(/{\\09}/g, '<span style="color:#ede47a;">');
+					text = text.replace(/{\\10}/g, '<span style="color:#b0c3d9;">');
+					text = text.replace(/{\\11}/g, '<span style="color:#5e98d9;">');
+					text = text.replace(/{\\12}/g, '<span style="color:#4b69ff;">');
+					text = text.replace(/{\\13}/g, '<span style="color:#b0c3d9;">');
+					text = text.replace(/{\\14}/g, '<span style="color:#d32ce6;">');
+					text = text.replace(/{\\15}/g, '<span style="color:#eb4b4b;">');
+					text = text.replace(/{\\16}/g, '<span style="color:#e4ae39;">');
+					text = text.replace(/{\\ni/g, '{\\<span>ni');
+					text = text.replace(/(?<!{)\\n/g, '<br><span style="color:#ffffff">');
+					break;
+				case '1':
+					text = _.escape(text);
+					text = text.replace(/(?<!{)\\n/g, '<br>');
+					text = '<span style="font-weight: bold; font-size: 20px;">'+ text;
+					var colors = obj.hud.color1.split(" ");
+					text = '<span style="color: rgb('+colors[0]+','+colors[1]+','+colors[2]+');">' + text;
+					break;
+				case '2':
+					var match = text.match(/color=['"](.*)['"]/);
+					if(match) {
+						text = text.replace(match[0], "style='color: "+match[1]+'\'');
+					}
+					text = text.replace(/(?<!{)\\n/g, '<br>');
+					text = '<span style="color: lightgreen;">$</span><span style="font-weight: bold; font-size: 16px;">'+ text;
+					break;
+				case '3':
+					text = _.escape(text);
+				 	text = '<span style="font-weight: bold; font-size: 18px; color: #ebdfd0;">'+text;
+					text = text.replace(/(?<!{)\\n/g, '<br>');
+					text += '<br><span style="color: #e2a045;">1. Закрыть';
+					break;
+			}
+			return text;
+		}
+	},
+	mounted: function() {
+		this.getAds();
+	},
+	delimiters: ['[[' , ']]']
+});
+</script>
