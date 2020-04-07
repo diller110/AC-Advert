@@ -61,6 +61,8 @@ var vueInst = new Vue({
 						console.log(response.data);
 						break;
 				}
+			}).catch(error => {
+			    console.log(error.response)
 			});
 		},
 		onReg: function(event) {
@@ -94,6 +96,8 @@ var vueInst = new Vue({
 						console.log(response.data);
 						break;
 				}
+			}).catch(error => {
+			    console.log(error.response)
 			});
 		},
 		toggleEmail: function(show = false) {
