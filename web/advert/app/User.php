@@ -72,7 +72,7 @@ class User {
 		$user->login = $req['login'];
 		$user->password = password_hash($req['password'], PASSWORD_DEFAULT);
 		$user->email = $req['email'];
-
+		$user->created = date("Y-m-d H:i:s", time());
 		$user->token = bin2hex(random_bytes(14));
 		$user->iv = User::createIv();
 		$user->save();

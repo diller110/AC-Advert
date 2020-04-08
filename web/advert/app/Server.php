@@ -93,6 +93,7 @@ class Server {
 			$server->ip = $req['ip'];
 			$server->port = $req['port'];
 			$server->title = $req['title'];
+			$server->created = date("Y-m-d H:i:s", time());
 			if(!empty($req['rcon'])) {
 				$server->rcon = User::encryptUserData($f3->get('user')->data['iv'], $req['rcon']);
 			}

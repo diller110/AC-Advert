@@ -2,6 +2,7 @@
 <html>
     <head>
 		<title>AC:Advert v2</title>
+		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<link href="{{@BASE}}/favicon.ico" rel="shortcut icon" type="image/x-icon" />
 		<link href="{{@BASE}}/favicon.ico" rel="icon" type="image/x-icon" />
@@ -124,7 +125,7 @@
 				 <div class="flex flex-row mb-3 md:mb-0">
 					 <check if="{{@V.newButton}}">
 						 <div class="relative rounded p-0 bg-white h-8 shadow mr-3 flex items-center">
-						 	<input class="z-10 h-full bg-transparent text-gray-800 rounded p-2" type="text" id="filterInput" name="" placeholder="Поиск..." value="" oninput="vueInst.filterInput(event)">
+						 	<input class="z-10 h-full bg-transparent text-gray-800 rounded p-2" type="search" id="filterInput" name="" placeholder="Поиск..." value="" oninput="vueInst.filterInput(event)">
 							<i class="absolute right-0 mr-2 material-icons text-gray-400">search</i>
 						 </div>
 	   				<div class="cursor-pointer font-medium bg-green-500 hover:bg-green-300 text-center leading-none rounded px-3 flex items-center" style="min-height: 2rem;" onclick="vueInst.newButton()">

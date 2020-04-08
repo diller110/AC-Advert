@@ -4,16 +4,30 @@ class Api {
 	private $user = null;
 	private $server = null;
 	function beforeRoute($f3, $params) {
+		if(!$f3->exists('HEADERS.Authorization')) {
+			if(isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION']) && !empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+				$f3->set('HEADERS.Authorization', ''.$_SERVER['REDIRECT_HTTP_AUTHORIZATION']);
+			} else if(isset($_SERVER['REDIRECT_REDIRECT_HTTP_AUTHORIZATION']) && !empty($_SERVER['REDIRECT_REDIRECT_HTTP_AUTHORIZATION'])) {
+				$f3->set('HEADERS.Authorization', ''.$_SERVER['REDIRECT_REDIRECT_HTTP_AUTHORIZATION']);
+			} else if($f3->exists('GET.authorization') && !empty($f3->get('GET.authorization'))) {
+				$f3->set('HEADERS.Authorization', ''.$f3->get('GET.authorization'));
+			}
+		}
+
 		if(!$f3->exists('HEADERS.Authorization') || !$f3->exists('HEADERS.Serverport')) {
-			die(json_encode([]));
+			die(json_encode([
+				'error' => 'No authorization info.'
+			]));
 		}
 		if(empty($f3->get('HEADERS.Authorization')) || strlen($f3->get('HEADERS.Authorization')) < 20) {
 			die(json_encode([
-				'error' => 'Invalid account token.'
+				'error' => 'Invalid account token('.$f3->get('HEADERS.Authorization').').'
 			]));
 		}
 		if(!is_numeric($f3->get('HEADERS.Serverport'))) {
-			die(json_encode([]));
+			die(json_encode([
+				'error' => 'Invalid server port.'
+			]));
 		}
 		$user = $f3->get('db')->getTable('users')->load(['token=?', $f3->get('HEADERS.Authorization')]);
 		if(!$user) {
