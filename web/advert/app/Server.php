@@ -46,6 +46,7 @@ class Server {
 		}
 		$req = json_decode($f3->get('BODY'), true);
 		if($req == null) die('0');
+		$req = array_map('trim', $req);
 		if(!isset($req['srv_id']) || !isset($req['field']) || !isset($req['value'])) {
 			die('0');
 		}
@@ -83,6 +84,7 @@ class Server {
 		if(!isset($req['ip']) || !isset($req['port']) || !isset($req['title']) || !isset($req['adv_time']) || !isset($req['rcon'])) {
 			die('0');
 		}
+		$req = array_map('trim', $req);
 		if(!is_numeric($req['adv_time']) || !is_numeric($req['port'])) {
 			die('0');
 		}

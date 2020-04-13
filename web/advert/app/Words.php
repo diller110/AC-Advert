@@ -24,6 +24,7 @@ class Words {
 		}
 		$req = json_decode($f3->get('BODY'), true);
 		if($req == null) die('0');
+		$req = array_map('trim', $req);
 		if(!isset($req['word_id']) || !isset($req['field']) || !isset($req['value'])) {
 			die('0');
 		}
@@ -50,6 +51,7 @@ class Words {
 		$req = json_decode($f3->get('BODY'), true);
 		if($req == null) die('0');
 		$req = $req['data'];
+		$req = array_map('trim', $req);
 		if(!isset($req['word_id']) || !is_numeric($req['word_id'])) {
 			die('0');
 		}

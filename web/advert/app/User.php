@@ -53,6 +53,7 @@ class User {
 		}
 		$user = $f3->get('db')->getTable('users');
 		$user->reset();
+		$req = array_map('trim', $req);
 		$v = new V($req);
 	   $v->rule('required', ['email']);
 	   if(!$v->validate()) {
