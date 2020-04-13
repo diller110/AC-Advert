@@ -209,7 +209,7 @@ var vueInst = new Vue({
 			var servers = {};
 			for(let i = 0; i<this.servers.length; i++) {
 				if(str.length < 1) {
-					servers[this.servers[i].srv_id] = this.servers[i];
+					servers[i] = this.servers[i];
 					continue;
 				}
 				if(String(this.servers[i].title).toLowerCase().indexOf(str) == -1 &&
@@ -218,7 +218,7 @@ var vueInst = new Vue({
 					String(this.servers[i].adv_time).toLowerCase().indexOf(str) == -1) {
 					continue;
 				}
-				servers[this.servers[i].srv_id] = this.servers[i];
+				servers[i] = this.servers[i];
 			}
 			return servers;
 		},

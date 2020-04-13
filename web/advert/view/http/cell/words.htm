@@ -187,14 +187,15 @@ var vueInst = new Vue({
 			var objs = {};
 			for(let i = 0; i<this.objs.length; i++) {
 				if(str.length < 1) {
-					objs[this.objs[i].srv_id] = this.objs[i];
+					objs[i] = this.objs[i];
 					continue;
 				}
 				if(String(this.objs[i].key).toLowerCase().indexOf(str) == -1 &&
 					String(this.objs[i].value).toLowerCase().indexOf(str) == -1) {
 					continue;
 				}
-				objs[this.objs[i].srv_id] = this.objs[i];
+
+				objs[i] = this.objs[i];
 			}
 			return objs;
 		},
