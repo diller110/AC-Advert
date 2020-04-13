@@ -65,7 +65,7 @@
 					</select>
 				</div>
 			  </div>
-			  <div class="flex flex-wrap mb-2">
+			  <div class="flex flex-wrap mb-2 items-center">
 				  <div class="w-full md:w-1/4 leading-none">Тип:</div>
   					<div class="w-full md:w-3/4 flex">
 						<select class="gr-input w-full" required v-model="popup_obj.msg_type">
@@ -129,10 +129,10 @@
 						<textarea ref="textInput" class="gr-input w-full h-auto" v-model="popup_obj.msg_text" style="min-height: 5rem;" required placeholder="Введите текст..." rows="3"></textarea>
 					</div>
 			  </div>
-			  <div class="flex flex-wrap mb-2">
+			  <div class="flex flex-wrap mb-2 items-center">
 				  <div class="w-full md:w-1/4 leading-none relative text-hint">Консольная команда:</div>
   					<div class="w-full md:w-3/4">
-						<input class="gr-input w-full mb-2" type="text" v-model="popup_obj.cmd" placeholder='sm_vip_give "@alive" "Pro" "3600"'>
+						<input class="gr-input w-full" type="text" v-model="popup_obj.cmd" placeholder='sm_vip_give "@alive" "Pro" "3600"'>
 					</div>
 			  </div>
 			  <div class="flex flex-wrap mb-2">
