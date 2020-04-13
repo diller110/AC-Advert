@@ -188,62 +188,62 @@
 				  <i class="material-icons cursor-pointer" v-on:click="hideHud">close</i>
 			  </div>
 			  <div class="bg-white p-3 flex flex-col overflow-y-auto">
-				  <div  class="flex flex-wrap mb-2">
-					   <div class="w-full md:w-1/4 leading-none relative text-hint">Стиль HUD:</div>
-					   <div class="w-full md:w-3/4">
-						   <div class="inline-block">
-							   <label class="mr-2" >Color1:</label>
-							   <input class="gr-input mb-2" v-model="popup_obj.hud.color1" type="text" placeholder="255 255 255 255">
-						   </div>
-						   <div class="inline-block">
-								 <label class="mr-2" >Color2:</label>
-								 <input class="gr-input mb-2" v-model="popup_obj.hud.color2" type="text" placeholder="255 255 255 255">
-						   </div>
-						   <div class="inline-block">
-								 <label class="mr-2">Effect:</label>
-								 <input class="gr-input mb-2" v-model="popup_obj.hud.effect" type="number" placeholder="0" min=0 step=1>
-						   </div>
-						   <div class="inline-block">
-								 <label class="mr-2">Fadein:</label>
-								 <input class="gr-input mb-2" v-model="popup_obj.hud.fadein" type="number" placeholder="0.1" min=0.0 step=0.1>
-						   </div>
-						   <div class="inline-block">
-								 <label class="mr-2">Fadeout:</label>
-								 <input class="gr-input mb-2" v-model="popup_obj.hud.fadeout" type="number" placeholder="0.1" min=0.0 step=0.1>
-						   </div>
-						   <div class="inline-block">
-								 <label class="mr-2">Holdtime:</label>
-								 <input class="gr-input mb-2" v-model="popup_obj.hud.holdtime" type="number" placeholder="0.1" min=0.0 step=0.1>
-						   </div>
-						   <div class="inline-block">
-								 <label class="mr-2">Fxtime:</label>
-								 <input class="gr-input mb-2" v-model="popup_obj.hud.fxtime" type="number" placeholder="0.1" min=0.0 step=0.1>
-						   </div>
-						   <div class="inline-block">
-								 <label class="mr-2">X:</label>
-								 <input class="gr-input mb-2" v-model="popup_obj.hud.x" type="number" placeholder="0.1" min="-1.0" max=1.0 step=0.01>
-						   </div>
-						   <div class="inline-block">
-								 <label class="mr-2">Y:</label>
-								 <input class="gr-input" v-model="popup_obj.hud.y" type="number" placeholder="0.1" min="-1.0" max=1.0 step=0.01>
-						   </div>
-							<div class="">
-								Описание:<br>
-								<span class="text-sm whitespace-pre-wrap"><span class="font-bold text-base">X</span> (0 - 1.0 = left to right) (-1 centers) : "-1" : "Horizontal position on the player's screens to draw the text. The value should be between 0 and 1, where 0 is the far left of the screen and 1 is the far right. -1 centers the text."
+				  <div class="flex flex-wrap mb-2">
+					  <div class="">
+							<div class="inline-block mr-2">
+								<label class="mr-2" >Color1:</label>
+								<input class="gr-input mb-2" v-model="popup_obj.hud.color1" type="text" placeholder="255 255 255 255">
+							</div>
+							<div class="inline-block mr-2">
+								<label class="mr-2" >Color2:</label>
+								<input class="gr-input mb-2" v-model="popup_obj.hud.color2" type="text" placeholder="255 255 255 255">
+							</div>
+							<div class="inline-block mr-2">
+								<label class="mr-2">Effect:</label>
+								<input class="gr-input mb-2" v-model="popup_obj.hud.effect" type="number" placeholder="0" min=0 step=1>
+							</div>
+							<div class="inline-block mr-2">
+								<label class="mr-2">Fadein:</label>
+								<input class="gr-input mb-2" v-model="popup_obj.hud.fadein" type="number" placeholder="0.1" min=0.0 step=0.1>
+							</div>
+							<div class="inline-block mr-2">
+								<label class="mr-2">Fadeout:</label>
+								<input class="gr-input mb-2" v-model="popup_obj.hud.fadeout" type="number" placeholder="0.1" min=0.0 step=0.1>
+							</div>
+							<div class="inline-block mr-2">
+								<label class="mr-2">Holdtime:</label>
+								<input class="gr-input mb-2" v-model="popup_obj.hud.holdtime" type="number" placeholder="0.1" min=0.0 step=0.1>
+							</div>
+							<div class="inline-block mr-2">
+								<label class="mr-2">Fxtime:</label>
+								<input class="gr-input mb-2" v-model="popup_obj.hud.fxtime" type="number" placeholder="0.1" min=0.0 step=0.1>
+							</div>
+							<div class="inline-block mr-2">
+								<label class="mr-2">X:</label>
+								<input class="gr-input mb-2" v-model="popup_obj.hud.x" type="number" placeholder="0.1" min="-1.0" max=1.0 step=0.01>
+							</div>
+							<div class="inline-block">
+								<label class="mr-2">Y:</label>
+								<input class="gr-input" v-model="popup_obj.hud.y" type="number" placeholder="0.1" min="-1.0" max=1.0 step=0.01>
+							</div>
+					  </div>
+
+						<div class="">
+							Описание:<br>
+							<span class="text-sm whitespace-pre-wrap"><span class="font-bold text-base">X</span> (0 - 1.0 = left to right) (-1 centers) : "-1" : "Horizontal position on the player's screens to draw the text. The value should be between 0 and 1, where 0 is the far left of the screen and 1 is the far right. -1 centers the text."
 <span class="font-bold text-base">Y</span> (0 - 1.0 = top to bottom) (-1 centers) : "-1" : "Vertical position on the player's screens to draw the text. The value should be between 0 and 1, where 0 is the top of the screen and 1 is the bottom. -1 centers the text."
 <span class="font-bold text-base">Text Effect</span>:
-	0 : "Fade In/Out"
-	1 : "Credits"
-	2 : "Scan Out"
+0 : "Fade In/Out"
+1 : "Credits"
+2 : "Scan Out"
 <span class="font-bold text-base">Color1</span> : "100 100 100 255"
 <span class="font-bold text-base">Color2</span> : "240 110 0 255"
 <span class="font-bold text-base">Fade in</span> Time (or character scan time) : "1.5" : "The time it should take for the text to fully fade in."
 <span class="font-bold text-base">Fade Out</span> Time : "0.5" : "The time it should take for the text to fade out, after the hold time has expired."
 <span class="font-bold text-base">Hold Time</span> : "1.2" : "The time the text should stay onscreen, after fading in, before it begins to fade out."
 <span class="font-bold text-base">Fxtime</span> Scan time (scan effect only) : "0.25" : "If the 'Text Effect' is set to Scan Out, this is the time it should take to scan out all the letters in the text."
-								</span>
-							</div>
-						 </div>
+							</span>
+						</div>
 				  </div>
 			  </div>
 			  <div class="rounded-b-lg bg-white flex justify-end p-3 pt-2">

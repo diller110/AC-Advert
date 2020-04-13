@@ -167,6 +167,20 @@ class Server {
 	  	}
 		die($suc);
 	}
+	function hotMessage($f3, $params) {
+		if(!$f3->get('user')->isLogged()) {
+			$f3->reroute('@main');
+		}
+		if(!is_numeric($params['srv_id'])) {
+			die(0);
+		}
+		$server = $f3->get('db')->getTable('servers')->load(['user_id=? and srv_id=?', [$f3->get('user')->userId(), $params['srv_id']] ]);
+		if(!$server) {
+			die('0');
+		}
+		if(strlen($server->rcon) < 1) die('0');
+
+	}
 	function encryptRcons($iv) {
 		global $f3;
 		if(!$f3->get('user')->isLogged()) {

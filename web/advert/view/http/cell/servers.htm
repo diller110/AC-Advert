@@ -22,12 +22,13 @@
 			  <td class="text-center">Действие</td>
 		  </tr>
 		  <tr is="tablerow"
-			  v-for="server in serversFiltered"
-			  v-bind:key="server.srv_id"
-			  v-bind:server="server"
-			  v-on:update="update(server)"
-			  v-on:deleteconfirm="deleteconfirm(server)"
-			  v-on:edit="edit(server)">
+				v-for="server in serversFiltered"
+				v-bind:key="server.srv_id"
+				v-bind:server="server"
+				v-on:update="update(server)"
+				v-on:deleteconfirm="deleteconfirm(server)"
+				v-on:hotMessage="hotmessage(server)"
+				v-on:edit="edit(server)">
 		  </tr>
 		</table>
 	  <br>
@@ -80,6 +81,191 @@
 		  </div>
 	   </div>
 	</div>
+	<!--
+
+	-->
+	<div id="hotPopup" class="invisible z-10 fixed top-0 left-0 w-full h-full bg-red-400 flex items-center justify-center align-middle text-gray-700" style="background: rgba(141,162,182, 0.5);">
+		<div class="fixed top-0 left-0 w-full h-full" v-on:click="hideHotPopup"></div>
+		<div class="z-10 flex flex-col w-full mx-4  md:w-1/2" style=" min-width: 350px; min-height: 200px; max-height: 95%;">
+			<div class="text-xl p-2 px-3 text-gray-300 bg-gray-700 rounded-t-lg flex justify-between items-center">
+				<span>Hot Message</span>
+				<i class="material-icons cursor-pointer" v-on:click="hideHotPopup">close</i>
+			</div>
+			<div class="bg-white p-3 flex flex-col overflow-y-auto">
+				<div class="flex flex-wrap mb-2">
+					Срочное объявление? Отправьте повторяющееся сообщение в пару кликов. По окончанию объявления можно выполнить команду (например: _restart),
+					задайте кол-во повторов и период их повторения, или укажите кол-во 0, чтобы отправить единственное сообщение.
+				</div>
+				<div class="flex flex-wrap mb-2">
+					<div class="w-full md:w-1/4 leading-none">Тип:</div>
+					<div class="w-full md:w-3/4 flex">
+						<select class="gr-input w-full" required v-model="popup_hot.msg_type">
+							<option value="0">Чат</option>
+							<option value="1">HUD</option>
+							<option value="2">Hint</option>
+							<option value="3">Меню</option>
+						</select>
+						<div v-if="popup_hot.msg_type==1" class="cursor-pointer ml-3 leading-none font-medium text-white bg-green-500 hover:bg-green-300 text-center rounded px-3 flex items-center h-8 " v-on:click="showHud">
+							Настройть HUD
+						</div>
+					</div>
+				</div>
+				<div class="flex flex-wrap mb-2">
+					<div class="w-full md:w-1/4 leading-none">Магические значения:</div>
+					<div class="w-full md:w-3/4 flex-col">
+						<div class="flex flex-wrap items-start justify-evenly chips2">
+							<span style="color: #000000; box-shadow: inset 0 0 2px 1px #d7d6d6;" v-on:click="magicClick($event)">{\01}</span>
+							<span style="color: #ff0000; box-shadow: inset 0 0 2px 1px #ff0000;" v-on:click="magicClick($event)">{\02}</span>
+							<span style="color: #ba81f0; box-shadow: inset 0 0 2px 1px #ba81f0;" v-on:click="magicClick($event)">{\03}</span>
+							<span style="color: #40ff40; box-shadow: inset 0 0 2px 1px #40ff40;" v-on:click="magicClick($event)">{\04}</span>
+							<span style="color: #bfff90; box-shadow: inset 0 0 2px 1px #bfff90;" v-on:click="magicClick($event)">{\05}</span>
+							<span style="color: #a2ff47; box-shadow: inset 0 0 2px 1px #a2ff47;" v-on:click="magicClick($event)">{\06}</span>
+							<span style="color: #ff4040; box-shadow: inset 0 0 2px 1px #ff4040;" v-on:click="magicClick($event)">{\07}</span>
+							<span style="color: #c5cad0; box-shadow: inset 0 0 2px 1px #c5cad0;" v-on:click="magicClick($event)">{\08}</span>
+							<span style="color: #ede47a; box-shadow: inset 0 0 2px 1px #ede47a;" v-on:click="magicClick($event)">{\09}</span>
+							<span style="color: #b0c3d9; box-shadow: inset 0 0 2px 1px #b0c3d9;" v-on:click="magicClick($event)">{\10}</span>
+							<span style="color: #5e98d9; box-shadow: inset 0 0 2px 1px #5e98d9;" v-on:click="magicClick($event)">{\11}</span>
+							<span style="color: #4b69ff; box-shadow: inset 0 0 2px 1px #4b69ff;" v-on:click="magicClick($event)">{\12}</span>
+							<span style="color: #b0c3d9; box-shadow: inset 0 0 2px 1px #b0c3d9;" v-on:click="magicClick($event)">{\13}</span>
+							<span style="color: #d32ce6; box-shadow: inset 0 0 2px 1px #d32ce6;" v-on:click="magicClick($event)">{\14}</span>
+							<span style="color: #eb4b4b; box-shadow: inset 0 0 2px 1px #eb4b4b;" v-on:click="magicClick($event)">{\15}</span>
+							<span style="color: #e4ae39; box-shadow: inset 0 0 2px 1px #e4ae39;" v-on:click="magicClick($event)">{\16}</span>
+							<span class="bg-gray-500" v-on:click="magicClick($event)">{/time}</span>
+							<span class="bg-gray-500" v-on:click="magicClick($event)">{/date}</span>
+							<span class="bg-gray-500" v-on:click="magicClick($event)">{/addr}</span>
+							<span class="bg-gray-500" v-on:click="magicClick($event)">{/port}</span>
+							<span class="bg-gray-500" v-on:click="magicClick($event)">{/hostname}</span>
+							<span class="bg-gray-500" v-on:click="magicClick($event)">{/hostname_db}</span>
+							<span class="bg-gray-500" v-on:click="magicClick($event)">{/slots}</span>
+							<span class="bg-gray-500" v-on:click="magicClick($event)">{/players}</span>
+							<span class="bg-gray-500" v-on:click="magicClick($event)">{/map}</span>
+							<span class="bg-gray-500" v-on:click="magicClick($event)">{/nextmap}</span>
+							<span class="bg-gray-500" v-on:click="magicClick($event)">{/timeleft}</span>
+							<span class="bg-gray-500" v-on:click="magicClick($event)">{/tickrate}</span>
+							<span class="bg-teal-400" v-on:click="magicClick($event)">{\nick}</span>
+							<span class="bg-teal-400" v-on:click="magicClick($event)">{\steamid}</span>
+							<span class="bg-teal-400" v-on:click="magicClick($event)">{\steamid64}</span>
+							<span class="bg-teal-400" v-on:click="magicClick($event)">{\vipGroup}</span>
+							<span class="bg-teal-400" v-on:click="magicClick($event)">{\vipTime}</span>
+						</div>
+					</div>
+				</div>
+				<div class="flex flex-wrap mb-2">
+					<div class="w-full md:w-1/4 relative text-hint">Текст:<br>
+						<i class="material-icons mr-2 rounded bg-gray-400 hover:bg-green-300 shadow-inner p-1">format_paint</i>
+						<div class="absolute top-0 colorize rounded hidden" v-html="colorizedStr" style="left: 3rem; min-height: 5rem;"></div>
+					</div>
+					<div class="w-full md:w-3/4">
+						<textarea ref="textInput" class="gr-input w-full h-auto" v-model="popup_hot.msg_text" style="min-height: 5rem;" required placeholder="Введите текст..." rows="3"></textarea>
+					</div>
+				</div>
+				<div class="flex flex-wrap mb-2">
+					<div class="w-full md:w-1/4 leading-none relative text-hint">Количество повторов:</div>
+					<div class="w-full md:w-3/4">
+						<input class="gr-input w-full mb-2" type="text" v-model="popup_hot.count" placeholder='1-5'>
+					</div>
+				</div>
+				<div class="flex flex-wrap mb-2">
+					<div class="w-full md:w-1/4 leading-none relative text-hint">Периодичность:</div>
+					<div class="w-full md:w-3/4">
+						<input class="gr-input w-full mb-2" type="text" v-model="popup_hot.cooldown" placeholder='15 секунд'>
+					</div>
+				</div>
+				<div class="flex flex-wrap mb-2">
+					<div class="w-full md:w-1/4 leading-none relative text-hint">Консольная команда:</div>
+					<div class="w-full md:w-3/4">
+						<input class="gr-input w-full mb-2" type="text" v-model="popup_hot.cmd" placeholder='sm_vip_give "@alive" "Pro" "3600"'>
+					</div>
+				</div>
+			</div>
+			<div class="rounded-b-lg bg-white flex justify-end p-3 pt-2">
+				<div class="cursor-pointer mr-3 font-medium text-white bg-green-500 hover:bg-green-300 text-center rounded px-3 flex items-center h-8 " v-on:click="hotSend">
+					Отправить
+				</div>
+				<div class="cursor-pointer  text-center px-3 flex items-center h-8" v-on:click="hideHotPopup">Закрыть</div>
+			</div>
+		</div>
+	</div>
+		<!--
+
+		-->
+	<div id="hudPopup" class="invisible z-10 fixed top-0 left-0 w-full h-full bg-red-400 flex items-center justify-center align-middle text-gray-700" style="background: rgba(141,162,182, 0.5);">
+		<div class="fixed top-0 left-0 w-full h-full" v-on:click="hideHud"></div>
+		<div class="z-10 flex flex-col w-full mx-4  md:w-1/2" style=" min-width: 350px; min-height: 200px; max-height: 95%;">
+			<div class="text-xl p-2 px-3 text-gray-300 bg-gray-700 rounded-t-lg flex justify-between items-center">
+				<span>Стиль HUD:</span>
+				<i class="material-icons cursor-pointer" v-on:click="hideHud">close</i>
+			</div>
+			<div class="bg-white p-3 flex flex-col overflow-y-auto">
+				<div class="flex flex-wrap mb-2">
+					<div class="">
+						<div class="inline-block mr-2">
+							<label class="mr-2" >Color1:</label>
+							<input class="gr-input mb-2" v-model="popup_hot.hud.color1" type="text" placeholder="255 255 255 255">
+						</div>
+						<div class="inline-block">
+							<label class="mr-2" >Color2:</label>
+							<input class="gr-input mb-2" v-model="popup_hot.hud.color2" type="text" placeholder="255 255 255 255">
+						</div>
+						<div class="inline-block">
+							<label class="mr-2">Effect:</label>
+							<input class="gr-input mb-2" v-model="popup_hot.hud.effect" type="number" placeholder="0" min=0 step=1>
+						</div>
+						<div class="inline-block">
+							<label class="mr-2">Fadein:</label>
+							<input class="gr-input mb-2" v-model="popup_hot.hud.fadein" type="number" placeholder="0.1" min=0.0 step=0.1>
+						</div>
+						<div class="inline-block">
+							<label class="mr-2">Fadeout:</label>
+							<input class="gr-input mb-2" v-model="popup_hot.hud.fadeout" type="number" placeholder="0.1" min=0.0 step=0.1>
+						</div>
+						<div class="inline-block">
+							<label class="mr-2">Holdtime:</label>
+							<input class="gr-input mb-2" v-model="popup_hot.hud.holdtime" type="number" placeholder="0.1" min=0.0 step=0.1>
+						</div>
+						<div class="inline-block">
+							<label class="mr-2">Fxtime:</label>
+							<input class="gr-input mb-2" v-model="popup_hot.hud.fxtime" type="number" placeholder="0.1" min=0.0 step=0.1>
+						</div>
+						<div class="inline-block">
+							<label class="mr-2">X:</label>
+							<input class="gr-input mb-2" v-model="popup_hot.hud.x" type="number" placeholder="0.1" min="-1.0" max=1.0 step=0.01>
+						</div>
+						<div class="inline-block">
+							<label class="mr-2">Y:</label>
+							<input class="gr-input" v-model="popup_hot.hud.y" type="number" placeholder="0.1" min="-1.0" max=1.0 step=0.01>
+						</div>
+					</div>
+					<div class="">
+						Описание:<br>
+						<span class="text-sm whitespace-pre-wrap"><span class="font-bold text-base">X</span> (0 - 1.0 = left to right) (-1 centers) : "-1" : "Horizontal position on the player's screens to draw the text. The value should be between 0 and 1, where 0 is the far left of the screen and 1 is the far right. -1 centers the text."
+<span class="font-bold text-base">Y</span> (0 - 1.0 = top to bottom) (-1 centers) : "-1" : "Vertical position on the player's screens to draw the text. The value should be between 0 and 1, where 0 is the top of the screen and 1 is the bottom. -1 centers the text."
+<span class="font-bold text-base">Text Effect</span>:
+0 : "Fade In/Out"
+1 : "Credits"
+2 : "Scan Out"
+<span class="font-bold text-base">Color1</span> : "100 100 100 255"
+<span class="font-bold text-base">Color2</span> : "240 110 0 255"
+<span class="font-bold text-base">Fade in</span> Time (or character scan time) : "1.5" : "The time it should take for the text to fully fade in."
+<span class="font-bold text-base">Fade Out</span> Time : "0.5" : "The time it should take for the text to fade out, after the hold time has expired."
+<span class="font-bold text-base">Hold Time</span> : "1.2" : "The time the text should stay onscreen, after fading in, before it begins to fade out."
+<span class="font-bold text-base">Fxtime</span> Scan time (scan effect only) : "0.25" : "If the 'Text Effect' is set to Scan Out, this is the time it should take to scan out all the letters in the text."
+						</span>
+					</div>
+				</div>
+			</div>
+			<div class="rounded-b-lg bg-white flex justify-end p-3 pt-2">
+				<div class="cursor-pointer mr-3 font-medium text-white bg-green-500 hover:bg-green-300 text-center rounded px-3 flex items-center h-8 " v-on:click="hideHud">
+					Закрыть
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--
+
+	-->
+
+
 </div>
 <!--
 
@@ -100,15 +286,18 @@
 			 <input class="outline-none w-full bg-transparent text-right hover:bg-white" type="text" name="" v-model="server.adv_time" v-on:keyup.enter="saveField('adv_time')">
 		 </td>
 		 <td class="text-green-300 text-center whitespace-no-wrap w-40">
-			 <span class="tooltip" data-tooltip="Обновить данные" v-on:click="$emit('update', 'server')">
-				 <i class="material-icons">publish</i>
-			 </span>
-			 <span class="tooltip" data-tooltip="Изменить" v-on:click="$emit('edit', 'server')">
-				 <i class="material-icons">edit</i>
-			 </span>
-			 <span class="tooltip" data-tooltip="Удалить" v-on:click="$emit('deleteconfirm', 'server')">
-				 <i class="material-icons">delete_forever</i>
-			 </span>
+			<span class="tooltip" data-tooltip="Hot Message" v-on:click="$emit('hotmessage', 'server')">
+				<i class="material-icons">report_problem</i>
+			</span>
+			<span class="tooltip" data-tooltip="Обновить данные" v-on:click="$emit('update', 'server')">
+				<i class="material-icons">publish</i>
+			</span>
+			<span class="tooltip" data-tooltip="Изменить" v-on:click="$emit('edit', 'server')">
+				<i class="material-icons">edit</i>
+			</span>
+			<span class="tooltip" data-tooltip="Удалить" v-on:click="$emit('deleteconfirm', 'server')">
+				<i class="material-icons">delete_forever</i>
+			</span>
 		 </td>
 	</tr>
 </template>
@@ -156,11 +345,10 @@ Vue.component('tablerow', {
 			if(this.server[field] == this.original[field]) {
 				return;
 			}
-			var this2 = this;
 			axios.post('{{@BASE}}/api/server/save/field', {
-				srv_id: this2.server.srv_id,
+				srv_id: this.server.srv_id,
 				field: field,
-				value: this2.server[field]
+				value: this.server[field]
 			}).then(function (response) {
 				if(response.data == null) {
 					console.log('Error getServers#1:');
@@ -169,13 +357,13 @@ Vue.component('tablerow', {
 					return;
 				}
 				if(response.data === 1) {
-					this2.original[field] = this2.server[field];
-					this2.haveChanges;
+					this.original[field] = this.server[field];
+					this.haveChanges;
 					vueFlash.flash(false, 'Поле обновлено!');
 					return;
 				}
 				vueFlash.flash(true, 'Ошибка при обновлении!');
-			});
+			}.bind(this));
 		}
 	},
 	props: [
@@ -186,7 +374,8 @@ Vue.component('tablerow', {
 		this.original = { ...this.server};
 	},
 	delimiters: ['[[' , ']]']
-})
+});
+
 var def_server =  {
 	srv_id: -1,
 	title: '',
@@ -195,13 +384,47 @@ var def_server =  {
 	rcon: '',
 	adv_time: 45,
 };
+
+var def_hot = {
+   srv_id: -1,
+   msg_text: "",
+   msg_type: 0,
+   count: 0,
+   cooldown: 20,
+   cmd: "",
+   hud: {
+      color1: '255 255 255 255',
+      color2: '255 255 255 255',
+      effect: 0,
+      fadein: 0.1,
+      fadeout: 0.1,
+      holdtime: 0.1,
+      fxtime: 0.1,
+      x: 0.1,
+      y: 0.1,
+   },
+};
+
 var vueInst = new Vue({
 	el: '#vueEl',
 	data: {
 		filterstr: '',
 		popup_server: def_server,
+      popup_hot: def_hot,
 		servers: null,
 		isEdit: false,
+		colorizedStr: ''
+	},
+	watch: {
+		'popup_hot.msg_text': function(newval) {
+			this.colorizedStr = this.colorize(this.popup_hot);
+		},
+		'popup_hot.msg_type': function() {
+			this.colorizedStr = this.colorize(this.popup_hot);
+		},
+		'popup_hot.hud.color1': function() {
+			this.colorizedStr = this.colorize(this.popup_hot);
+		}
 	},
 	computed: {
 		serversFiltered: function() {
@@ -235,27 +458,77 @@ var vueInst = new Vue({
 		}
 	},
 	methods: {
+		hotSend: function() {
+
+		},
+		colorize: function(obj) {
+			var text = obj.msg_text;
+			switch(String(obj.msg_type)) {
+				case '0':
+					text = _.escape(text);
+					text = text.replace(/{\\01}/g, '<span style="color:#ffffff;">');
+					text = text.replace(/{\\02}/g, '<span style="color:#ff0000;">');
+					text = text.replace(/{\\03}/g, '<span style="color:#ba81f0;">');
+					text = text.replace(/{\\04}/g, '<span style="color:#40ff40;">');
+					text = text.replace(/{\\05}/g, '<span style="color:#bfff90;">');
+					text = text.replace(/{\\06}/g, '<span style="color:#a2ff47;">');
+					text = text.replace(/{\\07}/g, '<span style="color:#ff4040;">');
+					text = text.replace(/{\\08}/g, '<span style="color:#c5cad0;">');
+					text = text.replace(/{\\09}/g, '<span style="color:#ede47a;">');
+					text = text.replace(/{\\10}/g, '<span style="color:#b0c3d9;">');
+					text = text.replace(/{\\11}/g, '<span style="color:#5e98d9;">');
+					text = text.replace(/{\\12}/g, '<span style="color:#4b69ff;">');
+					text = text.replace(/{\\13}/g, '<span style="color:#b0c3d9;">');
+					text = text.replace(/{\\14}/g, '<span style="color:#d32ce6;">');
+					text = text.replace(/{\\15}/g, '<span style="color:#eb4b4b;">');
+					text = text.replace(/{\\16}/g, '<span style="color:#e4ae39;">');
+					text = text.replace(/{\\ni/g, '{\\<span>ni');
+					text = text.replace(/(?<!{)\\n/g, '<br><span style="color:#ffffff">');
+					break;
+				case '1':
+					text = _.escape(text);
+					text = text.replace(/(?<!{)\\n/g, '<br>');
+					text = '<span style="font-weight: bold; font-size: 20px;">'+ text;
+					var colors = obj.hud.color1.split(" ");
+					text = '<span style="color: rgb('+colors[0]+','+colors[1]+','+colors[2]+');">' + text;
+					break;
+				case '2':
+					var match = text.match(/color=['"](.*)['"]/);
+					if(match) {
+						text = text.replace(match[0], "style='color: "+match[1]+'\'');
+					}
+					text = text.replace(/(?<!{)\\n/g, '<br>');
+					text = '<span style="color: lightgreen;">$</span><span style="font-weight: bold; font-size: 16px;">'+ text;
+					break;
+				case '3':
+					text = _.escape(text);
+					text = '<span style="font-weight: bold; font-size: 18px; color: #ebdfd0;">'+text;
+					text = text.replace(/(?<!{)\\n/g, '<br>');
+					text += '<br><span style="color: #e2a045;">1. Закрыть';
+					break;
+			}
+			return text;
+		},
 		filterInput: function(event) {
 			this.filterstr = event.target.value;
 		},
 		addServer: function() {
 			if(this.popup_server == null) return;
-			var this2 = this;
 			axios.post('{{@BASE}}/api/server/save', {
-				data: this2.popup_server,
+				data: this.popup_server,
 			}).then(function (response) {
 				if(response.data == null) {
 					console.log('Error addServer#1:');
 					console.log(response);
 					return;
 				}
-				vueFlash.flash(false, 'Сервер '+(this2.isEdit?'изменён':'добавлен'));
-			}).then(() => {
-				this2.$nextTick(function () {
-			    this2.getServers();
-				 this2.hidePopup();
-			 	});
-			});
+				vueFlash.flash(false, 'Сервер '+(this.isEdit?'изменён':'добавлен'));
+			}.bind(this)).then(function() {
+				this.$nextTick(function () {
+					this.getServers();
+					this.hidePopup();
+				}.bind(this));
+			}.bind(this));
 		},
 		deleteconfirm: function(server) {
 			var result = confirm('Вы уверены что хотите удалить сервер:\n'+server.title+'  '+server.ip+':'+server.port);
@@ -289,11 +562,27 @@ var vueInst = new Vue({
 			this.popup_server = {...def_server};
 			this.showPopup();
 		},
+      hotmessage: function(server) {
+			this.popup_hot.srv_id = server.srv_id;
+         this.showHotPopup();
+      },
 		showPopup: function() {
 			document.querySelector("#popup").classList.remove("invisible");
 		},
 		hidePopup: function() {
 			document.querySelector("#popup").classList.add("invisible");
+		},
+      showHotPopup: function() {
+			document.querySelector("#hotPopup").classList.remove("invisible");
+		},
+		hideHotPopup: function() {
+			document.querySelector("#hotPopup").classList.add("invisible");
+		},
+		showHud: function() {
+			document.querySelector("#hudPopup").classList.remove("invisible");
+		},
+		hideHud: function() {
+			document.querySelector("#hudPopup").classList.add("invisible");
 		},
 		getServers: function() {
 			var this2 = this;

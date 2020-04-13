@@ -84,7 +84,13 @@ class Ads {
 		$req = json_decode($f3->get('BODY'), true);
 		if($req == null) die('0');
 		$req = $req['data'];
-		$req = array_map('trim', $req);
+		foreach ($req as $key => $value) {
+			if(is_array($value)) {
+				$req[$key] = array_map('trim', $value);
+			} else {
+				$req[$key] = trim($value);
+			}
+		}
 
 		if(isset($req['show'])) { // Html Switch fix...
 			if($req['show'] == true) {
