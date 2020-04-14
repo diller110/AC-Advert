@@ -28,7 +28,7 @@ $f3->route('GET /api/server/delete/@srv_id', 'Server->delete');
 $f3->route('POST /api/server/save', 'Server->save');
 $f3->route('POST /api/server/save/field', 'Server->saveField');
 $f3->route('GET /api/server/update/@srv_id', 'Server->update');
-$f3->route('POST /api/server/hotmsg/@srv_id', 'Server->hotMessage');
+$f3->route('POST /api/server/hotmsg/@srv_id', 'Server->hotMsg');
 
 $f3->route('GET /api/words/get', 'Words->getList');
 $f3->route('GET /api/words/delete/@word_id', 'Words->delete');

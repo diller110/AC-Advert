@@ -81,13 +81,8 @@
 		  </div>
 	   </div>
 	</div>
-	<!--
 
-	-->
 	<hotpopup v-bind:hot='hot'></hotpopup>
-	<!--
-
-	-->
 </div>
 <!--
 
@@ -172,13 +167,14 @@
 				<div class="flex flex-wrap mb-2 items-center">
 					<div class="w-full md:w-1/4 leading-none relative text-hint">Количество повторов:</div>
 					<div class="w-full md:w-3/4">
-						<input class="gr-input w-full" type="text" v-model="hot.count" placeholder='1-5'>
+						<input class="gr-input w-12 text-center" type="number" min="0" max="5" v-model="hot.count" placeholder='0-5'>
+						0 - один раз, 1-5 - повторить еще N раз
 					</div>
 				</div>
 				<div class="flex flex-wrap mb-2 items-center">
 					<div class="w-full md:w-1/4 leading-none relative text-hint">Периодичность:</div>
 					<div class="w-full md:w-3/4">
-						<input class="gr-input w-full" type="text" v-model="hot.cooldown" placeholder='15 секунд'>
+						<input class="gr-input w-12" type="number" min="5" max="60" step="5" v-model="hot.cooldown" placeholder='15 секунд'> сек.
 					</div>
 				</div>
 				<div class="flex flex-wrap mb-2 items-center">
@@ -189,7 +185,7 @@
 				</div>
 			</div>
 			<div class="rounded-b-lg bg-white flex justify-end p-3 pt-2">
-				<div class="cursor-pointer mr-3 font-medium text-white bg-green-500 hover:bg-green-300 text-center rounded px-3 flex items-center h-8 " v-on:click="hotSend">
+				<div class="cursor-pointer mr-3 font-medium text-white bg-green-500 hover:bg-green-300 text-center rounded px-3 flex items-center h-8 " v-on:click="send">
 					Отправить
 				</div>
 				<div class="cursor-pointer  text-center px-3 flex items-center h-8" v-on:click="hidePopup">Закрыть</div>
@@ -222,8 +218,34 @@
 			}
 		},
 		methods: {
-			hotSend: function() {
+			send: function() {
+				axios.post('{{@BASE}}/api/server/hotmsg/'+this.hot.srv_id, {
+					data: this.hot
+				}).then(function (response) {
+					if(response.data == null) {
+						console.log('Error hotMsg#1:');
+						console.log(response);
+						vueFlash.flash(true, 'Ошибка при отправке!');
+						return;
+					}
+					if(response.data === '1') {
+						vueFlash.flash(false, 'Оправлено!');
+						return;
+					}
+					let msg = '';
+					console.log(response.data);
+					if(Array.isArray(response.data)) {
+						for (let i in response.data) {
+							msg += response.data[i]+'<br>';
+						}
+					} else {
+						msg = response.data;
+					}
 
+					vueFlash.flash(true, msg);
+				}.bind(this)).catch(error => {
+				    console.log(error.response)
+				});
 			},
 			colorize: function(obj) {
 				var text = obj.msg_text;
@@ -403,10 +425,10 @@
 			 <input class="outline-none w-full bg-transparent text-right hover:bg-white" type="text" name="" v-model="server.adv_time" v-on:keyup.enter="saveField('adv_time')">
 		 </td>
 		 <td class="text-green-300 text-center whitespace-no-wrap w-40">
-			<span v-if="$parent.hotComponent != null" class="tooltip" data-tooltip="Объявление" v-on:click="$emit('hotmessage', 'server')">
+			<span v-if="$parent.hotComponent != null && server.rcon != null" class="tooltip" data-tooltip="Объявление" v-on:click="$emit('hotmessage', 'server')">
 				<i class="material-icons">report_problem</i>
 			</span>
-			<span class="tooltip" data-tooltip="Обновить данные" v-on:click="$emit('update', 'server')">
+			<span v-if="server.rcon != null" class="tooltip" data-tooltip="Обновить данные" v-on:click="$emit('update', 'server')">
 				<i class="material-icons">publish</i>
 			</span>
 			<span class="tooltip" data-tooltip="Изменить" v-on:click="$emit('edit', 'server')">

@@ -2,6 +2,11 @@
 require __DIR__ . '/Libs/SourceQuery/bootstrap.php';
 use xPaw\SourceQuery\SourceQuery;
 
+require_once __DIR__.'/Libs/Validator.php';
+use Valitron\Validator as V;
+V::langDir(__DIR__.'/Libs/Validator/lang'); // always set langDir before lang.
+V::lang('ru');
+
 class Server {
 	function beforeRoute($f3, $params) {
 		(new Main())->beforeRoute($f3, $params);
@@ -98,6 +103,8 @@ class Server {
 			$server->created = date("Y-m-d H:i:s", time());
 			if(!empty($req['rcon'])) {
 				$server->rcon = User::encryptUserData($f3->get('user')->data['iv'], $req['rcon']);
+			} else {
+				$server->rcon = null;
 			}
 			$server->adv_time = $req['adv_time'];
 			try {
@@ -113,10 +120,12 @@ class Server {
 			$server->ip = $req['ip'];
 			$server->port = $req['port'];
 			$server->title = $req['title'];
-			if(!empty($req['rcon']) && $req['rcon'] == $f3->get('no_rcon')) {
+			if($req['rcon'] == $f3->get('no_rcon')) {
 				// Rcon not changed
-			} else {
+			} else if(!empty($req['rcon'])) { // Rcon not empty and not default
 				$server->rcon = User::encryptUserData($f3->get('user')->data['iv'], $req['rcon']);
+			} else {
+				$server->rcon = null;
 			}
 			$server->adv_time = $req['adv_time'];
 			try {
@@ -167,7 +176,7 @@ class Server {
 	  	}
 		die($suc);
 	}
-	function hotMessage($f3, $params) {
+	function hotMsg($f3, $params) {
 		if(!$f3->get('user')->isLogged()) {
 			$f3->reroute('@main');
 		}
@@ -179,7 +188,79 @@ class Server {
 			die('0');
 		}
 		if(strlen($server->rcon) < 1) die('0');
+		$req = json_decode($f3->get('BODY'), true);
+		if($req == null) die('0');
+		$req = $req['data'];
+		$v = new V($req);
+		$v->rules([
+			'required' => [
+				['msg_text'],
+				['msg_type'],
+				['hud', true],
+			],
+			'optional' => [
+				['count'], ['cooldown']
+			],
+			'numeric' => [
+				['count'],
+				['cooldown'],
+				['msg_type'],
+			],
+			'min' => [
+				['count', 0],
+				['cooldown', 5],
+				['msg_type', 0],
+			],
+			'max' => [
+				['count', 5],
+				['cooldown', 60],
+				['msg_type', 3],
+			]
+		]);
+		$v->labels([
+			'count' => 'Кол-во повторов',
+			'cooldown' => 'Периодичность',
+			'msg_text' => 'Текст сообщения',
+			'msg_type' => 'Тип сообщения'
+		]);
+		if(!$v->validate()) {
+			die(json_encode($v->errors()));
+		}
+		$msg = $f3->get('db')->getTable('hot_msgs');
+		$msg->reset();
+		$msg->user_id = $f3->get('user')->userId();
+		$msg->srv_id = $server->srv_id;
+		$msg->msg_text = $req['msg_text'];
+		$msg->msg_type = $req['msg_type'];
+		$msg->created = date("Y-m-d H:i:s", time());
+		if(isset($req['count']) && !empty($req['count'])) {
+			$msg->count = $req['count'];
+		}
+		if(isset($req['cooldown'])) {
+			$msg->cooldown = $req['cooldown'];
+		}
+		if(isset($req['cmd'])) {
+			$msg->cmd = $req['cmd'];
+		}
+		if(!empty($req['hud']) && $msg->msg_type == 1) {
+			ini_set('serialize_precision', -1);
+			$msg->hud_style = json_encode($req['hud']);
+		}
+		$msg->save();
 
+		$suc = 'Сообщение не отправлено';
+		$query = new SourceQuery();
+	  	try {
+	  		$query->Connect($server['ip'], $server['port'], 1, SourceQuery::SOURCE );
+	      $query->SetRconPassword(User::decryptUserData($f3->get('user')->data['iv'], $server['rcon']));
+	      $suc = $query->Rcon("sm_adv_hot ".$msg->msg_id.";");
+	  	} catch( Exception $e ) {
+	  		// error_log($e->getMessage());
+	      // echo "Internal error, check console.";
+	  	} finally {
+	  		$query->Disconnect();
+	  	}
+		die($suc);
 	}
 	function encryptRcons($iv) {
 		global $f3;
