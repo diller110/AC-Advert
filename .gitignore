@@ -2,3 +2,4 @@ tmp/
 .ftpconfig
 web/ac_advert.mwb.bak
 web/advert/app/config.ini
+server/scripting/ac_advert2.smx

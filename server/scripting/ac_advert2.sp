@@ -31,6 +31,7 @@ public void OnPluginStart() {
 	cvCmd = CreateConVar("sm_adv_allow_cmd", "0", "Enable ServerExecute from adv cmd");
 	cvForceIp = CreateConVar("sm_adv_force_ip", "", "Force set server ip (empty - default, 1 - hostip, or custom ip)");
 	
+	RegServerCmd("sm_adv_hot", Cmd_AdvHot);
 	RegServerCmd("sm_adv_update", Cmd_AdvUpdate);
 }
 public void OnAllPluginsLoaded() {
@@ -65,6 +66,50 @@ public Action Cmd_AdvUpdate(int args) {
 	//if (httpClient == null || !authorized) return Plugin_Handled;
 	ReAuth();
 	return Plugin_Handled;
+}
+public Action Cmd_AdvHot(int args) {
+	PrintToServer("[AC:Adv] Hot Msg command received from %s.", provider);
+	char buff[10];
+	GetCmdArg(1, buff, sizeof(buff));
+	int id = StringToInt(buff);
+	if(!id) {
+		PrintToServer("[AC:Adv] Invalid HotMsg id: %s.", buff);
+		return Plugin_Handled;
+	}
+	LoadHotMsg(id);
+	PrintToServer("[AC:Adv] Loading HotMsg: %d...", id);
+	return Plugin_Handled;
+}
+public void LoadHotMsg(int id) {
+	char buff[32];
+	Format(buff, sizeof(buff), "hotmsg/%d", id);
+	httpClient.Get(buff, OnHotMsgReceived, id);
+}
+public void OnHotMsgReceived(HTTPResponse response, int id) {
+	if (response.Status != HTTPStatus_OK) {
+		PrintToServer("[AC:Adv] OnHotMsgReceived: Failed to retrieve. (%d)", response.Status);
+		return;
+	}
+	if (response.Data == null) {
+		PrintToServer("[AC:Adv] OnHotMsgReceived: Invalid JSON response.");
+		return;
+	}
+	JSONObject data = view_as<JSONObject>(response.Data);
+	if(data.HasKey("error")) {
+		PrintToServer("[AC:Adv] OnHotMsgReceived: Have errors.");
+		char error[512];
+		data.GetString("error", error, sizeof(error));
+		PrintToServer("[AC:Adv] %s", error);
+		return;
+	}
+	char buff[2048];
+	data.ToString(buff, sizeof(buff));
+	PrintToServer(buff);
+	
+	/*
+	ads = view_as<JSONArray>(data.Get("ads"));
+	PrintToServer("[AC:Adv] %d ads loaded!", ads.Length);
+	*/
 }
 public void ReAuth() {
 	if(httpClient != null) {

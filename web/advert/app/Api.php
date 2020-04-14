@@ -50,16 +50,6 @@ class Api {
 		$this->user = $user;
 		$this->server = $server;
 	}
-	function test($f3, $params) {
-		die(json_encode([
-			$this->server->adv_time
-		]));
-		die(json_encode([
-			$f3->get('IP'),
-			$f3->get('HEADERS.Authorization'),
-			$f3->get('HEADERS')
-		]));
-	}
 	function auth($f3, $params) {
 		die(json_encode([
 			'time' => intval($this->server->adv_time),
@@ -137,6 +127,14 @@ class Api {
 			}
 		}
 		die(json_encode(['ads' => $ads], JSON_PRESERVE_ZERO_FRACTION+JSON_UNESCAPED_UNICODE  ));
+	}
+	/*
+	 *	/api/hotmsg/@msg_id
+	 */
+	function hotmsg($f3, $params) {
+		if(!is_numeric($params['msg_id'])) {
+			die(json_encode(['error' => 'Msg ID must be numeric']));
+		}
 	}
 	function formatWords($text, $words, $c = 0) {
 		if($c > 3) return $text;
