@@ -72,14 +72,15 @@ class Api {
 			]));
 		}
 		$words = $f3->get('db')->getTable('magic_words')->find(['user_id=?', $this->user->user_id]);
-		if(count($words)) {
+		if($words) {
 			$words = Main::castRes($words, ['key', 'value']);
-			foreach($words as $key => $v) {
-			  unset($words[$key]);
-			  $words[$v['key']] = str_replace('{'.$v['key'].'}', '{-'.$v['key'].'}', $v['value']);
+			$words = array_column($words, 'value', 'key');
+			foreach ($words as $key => $value) { // prevents key-word-key-word-key... recursion
+				$words['{'.$key.'}'] = str_replace('{'.$key.'}', '{-'.$key.'}', $value);
+				unset($words[$key]);
 			}
 			foreach ($ads as $key => $value) {
-				$ads[$key]['msg_text'] = $this->formatWords($ads[$key]['msg_text'], $words);
+				$ads[$key]['msg_text'] = self::formatWords($ads[$key]['msg_text'], $words);
 			}
 		}
 		$default_hud = [
@@ -94,12 +95,14 @@ class Api {
 			'y' => 0.1,
 		];
 		foreach ($ads as $key => $value) {
-			$ads[$key]['msg_text'] =
-				str_replace('{/hostname_db}', $this->server->title,
-				str_replace('{/addr}', $this->server->ip,
-				str_replace('{/port}', $this->server->port,
-				$value['msg_text'])));
-			$ads[$key]['msg_text'] = str_replace("{\\nick}", "{\\.nick}", $ads[$key]['msg_text']);
+			$ads[$key]['msg_text'] = strtr(
+				$value['msg_text'], [
+					'{/hostname_db}' => $this->server->title,
+					'{/addr}' => $this->server->ip,
+					'{/port}' => $this->server->port,
+					'{\\nick}' => '{\\.nick}',
+				]
+			);
 			$ads[$key]['msg_text'] = $this->formatColors($ads[$key]['msg_text']);
 			$ads[$key]['msg_type'] = intval($ads[$key]['msg_type']);
 			$ads[$key]['is_vip'] = intval($ads[$key]['is_vip']);
@@ -108,8 +111,7 @@ class Api {
 			if($value['msg_type'] == 0) {
 				$ads[$key]['msg_text'] = " ".$ads[$key]['msg_text'];
 				$ads[$key]['msg_text'] = str_replace("\\n", "\\n ", $ads[$key]['msg_text']);
-			}
-			if($value['msg_type'] == 1) {
+			} else if($value['msg_type'] == 1) {
 				$hud = $f3->get('db')->getTable('hud_style')->load(['adv_id=?', $value['adv_id']]);
 				if($hud) {
 					$hud = $hud->cast();
@@ -128,6 +130,9 @@ class Api {
 		}
 		die(json_encode(['ads' => $ads], JSON_PRESERVE_ZERO_FRACTION+JSON_UNESCAPED_UNICODE  ));
 	}
+	function test($f3, $params) {
+
+	}
 	/*
 	 *	/api/hotmsg/@msg_id
 	 */
@@ -136,41 +141,21 @@ class Api {
 			die(json_encode(['error' => 'Msg ID must be numeric']));
 		}
 	}
-	function formatWords($text, $words, $c = 0) {
-		if($c > 3) return $text;
-		$matches = null;
-		if(preg_match_all('/{([A-Za-z0-9_]+)}/', $text, $matches) < 1) {
-			return $text;
-		}
-		foreach($matches[1] as $key => $value) {
-			if(!isset($words[$value])) {
-				$text = str_replace('{'.$value.'}', '{-'.$value.'}', $text);
-				continue;
-			}
-			$text = str_replace('{'.$value.'}', $words[$value], $text);
-		}
-		if(preg_match('/{([A-Za-z0-9_]+)}/', $text) == 1) {
-			$text = formatWords($text, $words, $c+1);
+	static function formatWords($text, $words) {
+		$c = 0;
+		while(preg_match('/{([A-Za-z0-9_]+)}/', $text) === 1 && $c++<3) {
+			$text = strtr($text, $words);
 		}
 		return $text;
 	}
-	function formatColors($text) {
-	  return str_replace("{\\01}", "\x01",
-	          str_replace("{\\02}", "\x02",
-	          str_replace("{\\03}", "\x03",
-	          str_replace("{\\04}", "\x04",
-	          str_replace("{\\05}", "\x05",
-	          str_replace("{\\06}", "\x06",
-	          str_replace("{\\07}", "\x07",
-	          str_replace("{\\08}", "\x08",
-	          str_replace("{\\09}", "\x09",
-	          str_replace("{\\10}", "\x0A",
-	          str_replace("{\\11}", "\x0B",
-	          str_replace("{\\12}", "\x0C",
-	          str_replace("{\\13}", "\x0D",
-	          str_replace("{\\14}", "\x0E",
-	          str_replace("{\\15}", "\x0F",
-	          str_replace("{\\16}", "\x10",
-	          $text))))))))))))))));
+	static function formatColors($text) {
+		return strtr(
+			$text, [
+				"{\\01}" => "\x01",	"{\\02}" => "\x02",	"{\\03}" => "\x03",	"{\\04}" => "\x04",
+				"{\\05}" => "\x05",	"{\\06}" => "\x06",	"{\\07}" => "\x07",	"{\\08}" => "\x08",
+				"{\\09}" => "\x09",	"{\\0A}" => "\x0A",	"{\\0B}" => "\x0B",	"{\\0C}" => "\x0C",
+				"{\\0D}" => "\x0D",	"{\\0E}" => "\x0E",	"{\\0F}" => "\x0F",	"{\\10}" => "\x10",
+			]
+		);
 	}
 }

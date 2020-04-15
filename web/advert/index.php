@@ -41,6 +41,7 @@ $f3->route('POST /api/dot/save', 'Ads->save');
 
 $f3->route('GET /api/auth', 'Api->auth');
 $f3->route('GET /api/get', 'Api->get');
+$f3->route('GET /api/test', 'Api->test');
 $f3->route('GET /api/hotmsg/@msg_id', 'Api->hotmsg');
 
 $f3->route('GET|POST /app', function($f3) { $f3->reroute('@main'); });
