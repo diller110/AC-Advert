@@ -22,8 +22,9 @@ sm_adv_token "YOUR_PERSONAL_TOKEN"
 ##### WEB:
 1. Move /web/advert/... to your /path/...
 2. Copy /path/app/config.example.ini to /path/app/config.ini
-3. Fill required settings in /path/app/config.ini: db credentials, and crypto_key (30 random characters, e.g. from https://passwordsgenerator.net/)
-4. Register new account, add servers, words, ads, etc.
+3. Create database/user execute SQL from: `/web/SQL запрос.txt`
+4. Fill required settings in /path/app/config.ini: db credentials, and crypto_key (30 random characters, e.g. from https://passwordsgenerator.net/)
+5. Register new account, add servers, words, ads, etc.
 ##### Server:
 5. Install [sm-ripext](https://github.com/ErikMinekus/sm-ripext)
 6. Add convars `sm_adv_provider`, `sm_adv_token` to server.cfg
