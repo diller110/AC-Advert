@@ -59,7 +59,16 @@ class Server {
 			die('0');
 		}
 		switch($req['field']) {
+			case 'title':
+				if(empty($req['value'])) die('0');
+				break;
+			case 'ip':
+				if(empty($req['value'])) die('0');
+				break;
 			case 'port':
+				if(empty($req['value'])) die('0');
+				if(!is_numeric($req['value'])) die(0);
+				break;
 			case 'adv_time':
 				if(!is_numeric($req['value'])) die(0);
 				break;
@@ -90,6 +99,9 @@ class Server {
 			die('0');
 		}
 		$req = array_map('trim', $req);
+		if(empty($req['ip']) || empty($req['port']) || empty($req['title'])) {
+			die('0');
+		}
 		if(!is_numeric($req['adv_time']) || !is_numeric($req['port'])) {
 			die('0');
 		}

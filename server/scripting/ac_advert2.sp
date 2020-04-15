@@ -8,7 +8,7 @@
 #include <ripext>
 #include <regex>
 
-#define PLUGIN_VERSION "2.0b"
+#define PLUGIN_VERSION "2.1a"
 
 public Plugin myinfo = {
 	name = "AC: Advert v2",	author = "diller110",
