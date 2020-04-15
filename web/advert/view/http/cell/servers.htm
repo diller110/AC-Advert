@@ -207,17 +207,24 @@
 			}
 		},
 		watch: {
-			'props.hot.msg_text': function(newval) {
-				this.colorizedStr = this.colorize(this.props.hot);
+			'hot.msg_text': function(newval) {
+				this.colorizedStr = this.colorize(this.hot);
 			},
-			'props.hot.msg_type': function() {
-				this.colorizedStr = this.colorize(this.props.hot);
+			'hot.msg_type': function() {
+				this.colorizedStr = this.colorize(this.hot);
 			},
-			'props.hot.hud.color1': function() {
-				this.colorizedStr = this.colorize(this.props.hot);
+			'hot.hud.color1': function() {
+				this.colorizedStr = this.colorize(this.hot);
 			}
 		},
 		methods: {
+			magicClick: function($event) {
+				$event.preventDefault();
+				var a = this.hot.msg_text;
+				var pos = this.$refs.textInput.selectionStart;
+				this.hot.msg_text = a.substring(0, pos) + $event.target.innerHTML + a.substring(pos); // И как только это работает....
+				this.$refs.textInput.focus();
+			},
 			send: function() {
 				axios.post('{{@BASE}}/api/server/hotmsg/'+this.hot.srv_id, {
 					data: this.hot
