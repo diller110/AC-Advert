@@ -83,17 +83,6 @@ class Api {
 				$ads[$key]['msg_text'] = self::formatWords($ads[$key]['msg_text'], $words);
 			}
 		}
-		$default_hud = [
-			'color1' => '255 255 255 255',
-			'color2' => '255 255 255 255',
-			'effect' => 0,
-			'fadein' => 0.1,
-			'fadeout' => 0.1,
-			'holdtime' => 0.1,
-			'fxtime' => 0.1,
-			'x' => 0.1,
-			'y' => 0.1,
-		];
 		foreach ($ads as $key => $value) {
 			$ads[$key]['msg_text'] = strtr(
 				$value['msg_text'], [
@@ -103,7 +92,7 @@ class Api {
 					'{\\nick}' => '{\\.nick}',
 				]
 			);
-			$ads[$key]['msg_text'] = $this->formatColors($ads[$key]['msg_text']);
+			$ads[$key]['msg_text'] = self::formatColors($ads[$key]['msg_text']);
 			$ads[$key]['msg_type'] = intval($ads[$key]['msg_type']);
 			$ads[$key]['is_vip'] = intval($ads[$key]['is_vip']);
 			$ads[$key]['changeable'] = (strpos($value['msg_text'], '{/') !== FALSE);
@@ -124,7 +113,12 @@ class Api {
 					$hud['y'] = floatval($hud['y']);
 					$ads[$key]['hud'] = $hud;
 				} else {
-					$ads[$key]['hud'] = $default_hud;
+					$ads[$key]['hud'] = [
+						'color1' => '255 255 255 255',	'color2' => '255 255 255 255',
+						'fadein' => 0.1,	'fadeout' => 0.1,
+						'holdtime' => 0.1,	'fxtime' => 0.1,
+						'x' => 0.1,	'y' => 0.1, 'effect' => 0,
+					];
 				}
 			}
 		}
@@ -140,6 +134,51 @@ class Api {
 		if(!is_numeric($params['msg_id'])) {
 			die(json_encode(['error' => 'Msg ID must be numeric']));
 		}
+		$msg = $f3->get('db')->getTable('hot_msgs')->load([
+			'user_id=? and srv_id=? and msg_id=?',
+			[$this->user->user_id, $this->server->srv_id, $params['msg_id']]
+		]);
+		if(!$msg) {
+			die(json_encode(['error' => 'Msg ID not valid for this server']));
+		}
+		$msg = Main::cast($msg, [
+			'msg_id', 'msg_type', 'msg_text', 'count', 'cooldown', 'cmd', 'hud'
+		]);
+		if($msg['msg_type'] == 1) { // if hud
+			$msg['hud'] = json_decode($msg['hud']);
+			if($msg['hud'] === null) {
+				die(json_encode(['error' => 'Hot msg have incorrect "hud" data.']));
+			}
+		}
+
+		$words = $f3->get('db')->getTable('magic_words')->find(['user_id=?', $this->user->user_id]);
+		if($words) {
+			$words = Main::castRes($words, ['key', 'value']);
+			$words = array_column($words, 'value', 'key');
+			foreach ($words as $key => $value) { // prevents key-word-key-word-key... recursion
+				$words['{'.$key.'}'] = str_replace('{'.$key.'}', '{-'.$key.'}', $value);
+				unset($words[$key]);
+			}
+			$msg['msg_text'] = self::formatWords($msg['msg_text'], $words);
+		}
+		$msg['msg_text'] = strtr(
+			$msg['msg_text'], [
+				'{/hostname_db}' => $this->server->title,
+				'{/addr}' => $this->server->ip,
+				'{/port}' => $this->server->port,
+				'{\\nick}' => '{\\.nick}',
+			]
+		);
+		$msg['msg_text'] = self::formatColors($msg['msg_text']);
+		if($msg['msg_type'] == 0) {
+			$msg['msg_text'] = " ".$msg['msg_text'];
+			$msg['msg_text'] = str_replace("\\n", "\\n ", $msg['msg_text']);
+		}
+		$msg['changeable'] = (strpos($msg['msg_text'], '{/') !== FALSE);
+		$msg['userable'] = (strpos($msg['msg_text'], '{\\') !== FALSE);
+		$msg['is_vip'] = intval($msg['is_vip']);
+
+		die(json_encode(['msg' => $msg], JSON_UNESCAPED_UNICODE));
 	}
 	static function formatWords($text, $words) {
 		$c = 0;
@@ -153,8 +192,8 @@ class Api {
 			$text, [
 				"{\\01}" => "\x01",	"{\\02}" => "\x02",	"{\\03}" => "\x03",	"{\\04}" => "\x04",
 				"{\\05}" => "\x05",	"{\\06}" => "\x06",	"{\\07}" => "\x07",	"{\\08}" => "\x08",
-				"{\\09}" => "\x09",	"{\\0A}" => "\x0A",	"{\\0B}" => "\x0B",	"{\\0C}" => "\x0C",
-				"{\\0D}" => "\x0D",	"{\\0E}" => "\x0E",	"{\\0F}" => "\x0F",	"{\\10}" => "\x10",
+				"{\\09}" => "\x09",	"{\\10}" => "\x0A",	"{\\11}" => "\x0B",	"{\\12}" => "\x0C",
+				"{\\13}" => "\x0D",	"{\\14}" => "\x0E",	"{\\15}" => "\x0F",	"{\\16}" => "\x10",
 			]
 		);
 	}

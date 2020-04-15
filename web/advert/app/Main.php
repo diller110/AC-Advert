@@ -107,6 +107,27 @@ class Main {
 		}
 		echo \Template::instance()->render('layout.htm');
 	}
+	/*
+	 * Cast DB record/records(as object) to php array
+	 * array $fields - filter keys that not in array 
+	*/
+	static function cast($res, $fields = null) {
+		if(is_array($res)) {
+			foreach ($res as $key => $value) {
+				$res[$key] = self::cast($value, $fields);
+			}
+		} else {
+			$res = $res->cast();
+			if($fields) {
+				foreach ($res as $key => $value) {
+					if(!in_array($key, $fields)) {
+						unset($res[$key]);
+					}
+				}
+			}
+		}
+		return $res;
+	}
 	static function castRes($res, $fields = null) {
 		foreach ($res as $key => $value) {
 			$res[$key] = $value->cast();

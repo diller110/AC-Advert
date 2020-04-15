@@ -102,14 +102,39 @@ public void OnHotMsgReceived(HTTPResponse response, int id) {
 		PrintToServer("[AC:Adv] %s", error);
 		return;
 	}
-	char buff[2048];
-	data.ToString(buff, sizeof(buff));
-	PrintToServer(buff);
-	
-	/*
-	ads = view_as<JSONArray>(data.Get("ads"));
-	PrintToServer("[AC:Adv] %d ads loaded!", ads.Length);
-	*/
+	JSONObject msg = view_as<JSONObject>(data.Get("msg"));
+	PrintAdvert(msg, true);
+	if(!msg.GetInt("count")) {
+		if(cvCmd.BoolValue) {
+			static char buff[128];
+			msg.GetString("cmd", buff, sizeof(buff));
+			if(buff[0]) {
+				LogMessage("[AC:Adv] Execute hot_msg cmd: \"%s\"", buff);
+				ServerCommand(buff);
+			}
+		}
+		delete msg;
+	} else {
+		CreateTimer( msg.GetInt("cooldown")*1.0, Timer_HotMsg, msg);
+	}
+}
+public Action Timer_HotMsg(Handle timer, JSONObject msg) {
+	msg.SetInt("count", msg.GetInt("count") - 1);
+	PrintAdvert(msg, true);
+	if(msg.GetInt("count") <= 0) {
+		if(cvCmd.BoolValue) {
+			static char buff[128];
+			msg.GetString("cmd", buff, sizeof(buff));
+			if(buff[0]) {
+				LogMessage("[AC:Adv] Execute hot_msg cmd: \"%s\"", buff);
+				ServerCommand(buff);
+			}
+		}
+		delete msg;
+		return Plugin_Handled;
+	}
+	CreateTimer( msg.GetInt("cooldown")*1.0, Timer_HotMsg, msg);
+	return Plugin_Handled;
 }
 public void ReAuth() {
 	if(httpClient != null) {
@@ -214,17 +239,20 @@ public Action Timer_Main(Handle timer) {
 	return Plugin_Continue;
 }
 #define STRLEN 1024
-void PrintAdvert(JSONObject adv) {
+void PrintAdvert(JSONObject adv, bool hot = false) {
 	static char buff[STRLEN], buff_u[STRLEN];
-	buff[0] = 0;
-	adv.GetString("hours", buff, 64);
-	if(buff[0] && !CheckHours(buff)) {
-		return;
+	if(!hot) {
+		buff[0] = 0;
+		adv.GetString("hours", buff, 64);
+		if(buff[0] && !CheckHours(buff)) {
+			return;
+		}
+		adv.GetString("day_of_week", buff, 10);
+		if(buff[0] && !CheckDays(buff)) {
+			return;
+		}
 	}
-	adv.GetString("day_of_week", buff, 10);
-	if(buff[0] && !CheckDays(buff)) {
-		return;
-	}
+	
 	adv.GetString("msg_text", buff, STRLEN);
 	if(adv.GetBool("changeable")) {
 		FormatChangeable(buff, strlen(buff));

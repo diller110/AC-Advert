@@ -244,7 +244,7 @@ class Server {
 		}
 		if(!empty($req['hud']) && $msg->msg_type == 1) {
 			ini_set('serialize_precision', -1);
-			$msg->hud_style = json_encode($req['hud']);
+			$msg->hud = json_encode($req['hud']);
 		}
 		$msg->save();
 
