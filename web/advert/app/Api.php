@@ -3,6 +3,10 @@
 class Api {
 	private $user = null;
 	private $server = null;
+	private $custom = [
+		'alt_colors' => false
+	];
+
 	function beforeRoute($f3, $params) {
 		if(!$f3->exists('HEADERS.Authorization')) {
 			if(isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION']) && !empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
@@ -49,6 +53,12 @@ class Api {
 		}
 		$this->user = $user;
 		$this->server = $server;
+
+		if($f3->exists('HEADERS.Altcolors')) {
+			if($f3->get('HEADERS.Altcolors')) {
+				$this->custom['alt_colors'] = true;
+			}
+		}
 	}
 	function auth($f3, $params) {
 		die(json_encode([
@@ -92,14 +102,24 @@ class Api {
 					'{\\nick}' => '{\\.nick}',
 				]
 			);
-			$ads[$key]['msg_text'] = self::formatColors($ads[$key]['msg_text']);
+
+			if(isset($this->custom['alt_colors']) && $this->custom['alt_colors']) {
+				$ads[$key]['msg_text'] = self::formatColors_Alt($ads[$key]['msg_text']);
+			} else {
+				$ads[$key]['msg_text'] = self::formatColors($ads[$key]['msg_text']);
+			}
 			$ads[$key]['msg_type'] = intval($ads[$key]['msg_type']);
 			$ads[$key]['is_vip'] = intval($ads[$key]['is_vip']);
 			$ads[$key]['changeable'] = (strpos($value['msg_text'], '{/') !== FALSE);
 			$ads[$key]['userable'] = (strpos($value['msg_text'], '{\\') !== FALSE);
 			if($value['msg_type'] == 0) {
-				$ads[$key]['msg_text'] = " ".$ads[$key]['msg_text'];
-				$ads[$key]['msg_text'] = str_replace("\\n", "\\n ", $ads[$key]['msg_text']);
+				if($this->custom['alt_colors']) {
+					$ads[$key]['msg_text'] = "\x01".$ads[$key]['msg_text'];
+					$ads[$key]['msg_text'] = str_replace("\\n", "", $ads[$key]['msg_text']);
+				} else {
+					$ads[$key]['msg_text'] = " ".$ads[$key]['msg_text'];
+					$ads[$key]['msg_text'] = str_replace("\\n", "\\n ", $ads[$key]['msg_text']);
+				}
 			} else if($value['msg_type'] == 1) {
 				$hud = $f3->get('db')->getTable('hud_style')->load(['adv_id=?', $value['adv_id']]);
 				if($hud) {
@@ -169,10 +189,20 @@ class Api {
 				'{\\nick}' => '{\\.nick}',
 			]
 		);
-		$msg['msg_text'] = self::formatColors($msg['msg_text']);
+		if(isset($this->custom['alt_colors']) && $this->custom['alt_colors']) {
+			$msg['msg_text'] = self::formatColors_Alt($msg['msg_text']);
+		} else {
+			$msg['msg_text'] = self::formatColors($msg['msg_text']);
+		}
+
 		if($msg['msg_type'] == 0) {
-			$msg['msg_text'] = " ".$msg['msg_text'];
-			$msg['msg_text'] = str_replace("\\n", "\\n ", $msg['msg_text']);
+			if($this->custom['alt_colors']) {
+				$msg['msg_text'] = "\x01".$msg['msg_text'];
+				$msg['msg_text'] = str_replace("\\n", "", $msg['msg_text']);
+			} else {
+				$msg['msg_text'] = " ".$msg['msg_text'];
+				$msg['msg_text'] = str_replace("\\n", "\\n ", $msg['msg_text']);
+			}
 		}
 		$msg['changeable'] = (strpos($msg['msg_text'], '{/') !== FALSE);
 		$msg['userable'] = (strpos($msg['msg_text'], '{\\') !== FALSE);
@@ -194,6 +224,16 @@ class Api {
 				"{\\05}" => "\x05",	"{\\06}" => "\x06",	"{\\07}" => "\x07",	"{\\08}" => "\x08",
 				"{\\09}" => "\x09",	"{\\10}" => "\x0A",	"{\\11}" => "\x0B",	"{\\12}" => "\x0C",
 				"{\\13}" => "\x0D",	"{\\14}" => "\x0E",	"{\\15}" => "\x0F",	"{\\16}" => "\x10",
+			]
+		);
+	}
+	static function formatColors_Alt($text) {
+		return strtr(
+			$text, [
+				"{\\01}" => "\x01",		"{\\02}" => "\x07FF0000",	"{\\03}" => "\x07BA81F0",	"{\\04}" => "\x0740FF40",
+				"{\\05}" => "\x07BFFF90",	"{\\06}" => "\x07A2FF47",	"{\\07}" => "\x07FF4040",	"{\\08}" => "\x07C5CAD0",
+				"{\\09}" => "\x07EDE47A",	"{\\10}" => "\x07B0C3D9",	"{\\11}" => "\x075E98D9",	"{\\12}" => "\x074B69FF",
+				"{\\13}" => "\x07B0C3D9",	"{\\14}" => "\x07D32CE6",	"{\\15}" => "\x07EB4B4B",	"{\\16}" => "\x07E4AE39",
 			]
 		);
 	}

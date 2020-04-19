@@ -24,6 +24,7 @@ char provider[64], token[32];
 JSONArray ads = null;
 int current = 0;
 Handle mainTimer = null;
+bool altColors;
 
 public void OnPluginStart() {	
 	cvProvider = CreateConVar("sm_adv_provider", "", "Url of data provider");
@@ -33,6 +34,8 @@ public void OnPluginStart() {
 	
 	RegServerCmd("sm_adv_hot", Cmd_AdvHot);
 	RegServerCmd("sm_adv_update", Cmd_AdvUpdate);
+	
+	altColors = GetEngineVersion() == Engine_CSS || GetEngineVersion() == Engine_TF2;
 }
 public void OnAllPluginsLoaded() {
 	useVip = LibraryExists("vip_core");
@@ -147,6 +150,10 @@ public void ReAuth() {
 	Format(buff, 8, "%d", FindConVar("hostport").IntValue);
 	httpClient.SetHeader("Serverport", buff);
 	httpClient.SetHeader("Pluginver", PLUGIN_VERSION);
+	if(altColors) {
+		httpClient.SetHeader("Altcolors", "1");
+	}
+
 	if(cvForceIp.BoolValue) {
 		cvForceIp.GetString(buff, sizeof(buff));
 		if(StrEqual(buff, "1")) {
@@ -263,7 +270,11 @@ void PrintAdvert(JSONObject adv, bool hot = false) {
 	switch(adv.GetInt("msg_type")) {
 		case 0: {
 			buffs[0][0] = buffs[1][0] = buffs[2][0] = buffs[3][0] = buffs[4][0] = buffs[5][0] = buffs[6][0] = '\0';
-			ExplodeString(buff, "\\n", buffs, sizeof(buffs), sizeof(buffs[]));
+			if(altColors) {
+				strcopy(buffs[0], sizeof(buffs[]), buff);
+			} else {
+				ExplodeString(buff, "\\n", buffs, sizeof(buffs), sizeof(buffs[]));
+			}
 			
 			for (int i = 1; i < MaxClients; i++) {
 				if(!IsClientInGame(i) || IsFakeClient(i)) continue;

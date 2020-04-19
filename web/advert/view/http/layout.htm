@@ -107,18 +107,23 @@
 			 <div class="relative mt-4 flex flex-wrap-reverse justify-between text-white">
 				 <div class="flex flex-row">
 					<a href="{{@BASE}}/">
-					 <div class="font-medium bg-gray-500 rounded px-3 flex items-center h-8 mr-3 {{@V.ifeq('V.curPage', 'servers', 'tab-active')}}">
+					 <div class="font-medium bg-gray-500 rounded px-1 sm:px-3 flex items-center h-8 mr-3 {{@V.ifeq('V.curPage', 'servers', 'tab-active')}}">
 					 	Сервера
 					 </div>
 					</a>
 					<a href="{{@BASE}}/words">
-						<div class="font-medium bg-gray-500 text-center leading-none rounded px-3 flex items-center h-8 mr-3 {{@V.ifeq('V.curPage', 'words', 'tab-active')}}">
+						<div class="font-medium bg-gray-500 text-center leading-none rounded px-1 sm:px-3 flex items-center h-8 mr-3 {{@V.ifeq('V.curPage', 'words', 'tab-active')}}">
 							Магические фразы
 						</div>
 					</a>
 					<a href="{{@BASE}}/dot">
-	  					<div class="font-medium bg-gray-500 rounded px-3 flex items-center h-8 {{@V.ifeq('V.curPage', 'ads', 'tab-active')}}">
+	  					<div class="font-medium bg-gray-500 rounded px-1 sm:px-3 flex items-center h-8 mr-3 {{@V.ifeq('V.curPage', 'ads', 'tab-active')}}">
 							Реклама
+						</div>
+					</a>
+					<a href="{{@BASE}}/dot">
+	  					<div class="font-medium bg-gray-500 rounded px-1 sm:px-3 flex items-center h-8 {{@V.ifeq('V.curPage', 'tasks', 'tab-active')}}">
+							Задачи
 						</div>
 					</a>
 				 </div>
