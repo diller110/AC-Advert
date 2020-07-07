@@ -100,6 +100,15 @@ class Ads {
 			}
 		}
 
+		if(isset($req['hud'])) {
+			$req['hud']['fadein'] = $this->floatvalue($req['hud']['fadein']);
+			$req['hud']['fadeout'] = $this->floatvalue($req['hud']['fadeout']);
+			$req['hud']['fxtime'] = $this->floatvalue($req['hud']['fxtime']);
+			$req['hud']['holdtime'] = $this->floatvalue($req['hud']['holdtime']);
+			$req['hud']['x'] = $this->floatvalue($req['hud']['x']);
+			$req['hud']['y'] = $this->floatvalue($req['hud']['y']);
+		}
+
 		$v = new V($req);
 		$v->rule('required', ['adv_id', 'msg_type', 'msg_text', 'servers']);
 		$v->rule('numeric', ['adv_id', 'msg_type', 'is_vip', 'views', 'show', 'order']);
@@ -208,5 +217,12 @@ class Ads {
 		}
 		$adv->erase();
 		die('1');
+	}
+
+	// https://stackoverflow.com/a/44110263
+	function floatvalue($val){
+      $val = str_replace(",",".",$val);
+      $val = preg_replace('/\.(?=.*\.)/', '', $val);
+      return floatval($val);
 	}
 }
